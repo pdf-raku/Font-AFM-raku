@@ -1,6 +1,6 @@
-# This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
+# This -*- perl6 -*-  module is a simple parser for Adobe Font Metrics files.
 
-package Font::AFM;
+class Font::AFM:vers<1.20>;
 
 =head1 NAME
 
@@ -9,11 +9,11 @@ Font::AFM - Interface to Adobe Font Metrics files
 =head1 SYNOPSIS
 
  use Font::AFM;
- $h = new Font::AFM "Helvetica";
- $copyright = $h->Notice;
- $w = $h->Wx->{"aring"};
- $w = $h->stringwidth("Gisle", 10);
- $h->dump;  # for debugging
+ my $h = Font::AFM.new("Helvetica");
+ my $copyright = $h.Notice;
+ my $w = $h.Wx<aring>;
+ $w = $h.stringwidth("Gisle", 10);
+ $h.dump;  # for debugging
 
 =head1 DESCRIPTION
 
@@ -30,33 +30,32 @@ The following methods are available:
 
 =over 3
 
-=item $afm = Font::AFM->new($fontname)
+=item my $afm = Font::AFM.new($fontname)
 
 Object constructor. Takes the name of the font as argument.
 Croaks if the font can not be found.
 
-=item $afm->latin1_wx_table()
+=item $afm.latin1-wx-table()
 
 Returns a 256-element array, where each element contains the width
 of the corresponding character in the iso-8859-1 character set.
 
-=item $afm->stringwidth($string, [$fontsize])
+=item $afm.stringwidth($string, [$fontsize])
 
-Returns the width of the argument string. The string is
-assumed to be encoded in the iso-8859-1 character set.  A second
+Returns the width of the argument string. A second
 argument can be used to scale the width according to the font size.
 
-=item $afm->FontName
+=item $afm.FontName
 
 The name of the font as presented to the PostScript language
 C<findfont> operator, for instance "Times-Roman".
 
-=item $afm->FullName
+=item $afm.FullName
 
 Unique, human-readable name for an individual font, for instance
 "Times Roman".
 
-=item $afm->FamilyName
+=item $afm.FamilyName
 
 Human-readable name for a group of fonts that are stylistic variants
 of a single design. All fonts that are members of such a group should
@@ -68,17 +67,17 @@ have exactly the same C<FamilyName>. Example of a family name is
 Human-readable name for the weight, or "boldness", attribute of a font.
 Examples are C<Roman>, C<Bold>, C<Light>.
 
-=item $afm->ItalicAngle
+=item $afm.ItalicAngle
 
 Angle in degrees counterclockwise from the vertical of the dominant
 vertical strokes of the font.
 
-=item $afm->IsFixedPitch
+=item $afm.IsFixedPitch
 
 If C<true>, the font is a fixed-pitch
 (monospaced) font.
 
-=item $afm->FontBBox
+=item $afm.FontBBox
 
 A string of four numbers giving the lower-left x, lower-left y,
 upper-right x, and upper-right y of the font bounding box. The font
@@ -86,61 +85,61 @@ bounding box is the smallest rectangle enclosing the shape that would
 result if all the characters of the font were placed with their
 origins coincident, and then painted.
 
-=item $afm->UnderlinePosition
+=item $afm.UnderlinePosition
 
 Recommended distance from the baseline for positioning underline
 strokes. This number is the y coordinate of the center of the stroke.
 
-=item $afm->UnderlineThickness
+=item $afm.UnderlineThickness
 
 Recommended stroke width for underlining.
 
-=item $afm->Version
+=item $afm.Version
 
 Version number of the font.
 
-=item $afm->Notice
+=item $afm.Notice
 
 Trademark or copyright notice, if applicable.
 
-=item $afm->Comment
+=item $afm.Comment
 
 Comments found in the AFM file.
 
-=item $afm->EncodingScheme
+=item $afm.EncodingScheme
 
 The name of the standard encoding scheme for the font. Most Adobe
 fonts use the C<AdobeStandardEncoding>. Special fonts might state
 C<FontSpecific>.
 
-=item $afm->CapHeight
+=item $afm.CapHeight
 
 Usually the y-value of the top of the capital H.
 
-=item $afm->XHeight
+=item $afm.XHeight
 
 Typically the y-value of the top of the lowercase x.
 
-=item $afm->Ascender
+=item $afm.Ascender
 
 Typically the y-value of the top of the lowercase d.
 
-=item $afm->Descender
+=item $afm.Descender
 
 Typically the y-value of the bottom of the lowercase p.
 
-=item $afm->Wx
+=item $afm.Wx
 
 Returns a hash table that maps from glyph names to the width of that glyph.
 
-=item $afm->BBox
+=item $afm.BBox
 
 Returns a hash table that maps from glyph names to bounding box information.
 The bounding box consist of four numbers: llx, lly, urx, ury.
 
-=item $afm->dump
+=item $afm.dump
 
-Dumps the content of the Font::AFM object to STDOUT.  Might sometimes
+Dumps the content of the Font::AFM object to <$*OUT>.  Might sometimes
 be useful for debugging.
 
 =back
@@ -175,12 +174,14 @@ Ligature data is not parsed.
 
 Copyright 1995-1998 Gisle Aas. All rights reserved.
 
+Ported from Perl 5 to 6 by David Warring Copyright 2014
+
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
 
-#-------perl resumes here--------------------------------------------
+#-------perl 6 resumes here--------------------------------------------
 
 use Carp;
 use strict;
