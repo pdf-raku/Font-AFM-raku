@@ -1,7 +1,7 @@
 use Test;
 plan 2;
 
-%*ENV<FONTMETRICS> = 'etc/Core14_AFMs';
+%*ENV<METRICS> = 'etc/Core14_AFMs';
 
 require Font::AFM;
 
