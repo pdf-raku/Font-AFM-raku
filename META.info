@@ -5,7 +5,19 @@
     "depends"     : [ ],
     "source-url"  : "git://github.com/p6-pdf/perl6-Font-AFM.git",
     "provides"    : {
-        "Font::AFM" : "lib/Font/AFM.pm"
+        "Font::AFM" : "lib/Font/AFM.pm",
+        "Font::Metrics::Courier" => "Font/Metrics/Courier.pm",
+        "Font::Metrics::CourierBold" => "Font/Metrics/CourierBold.pm",
+        "Font::Metrics::CourierOblique" => "Font/Metrics/CourierOblique.pm",
+        "Font::Metrics::CourierBoldOblique" => "Font/Metrics/CourierBoldOblique.pm",
+        "Font::Metrics::Helvetica" => "Font/Metrics/Helvetica.pm",
+        "Font::Metrics::HelveticaBold" => "Font/Metrics/HelveticaBold.pm",
+        "Font::Metrics::HelveticaOblique" => "Font/Metrics/HelveticaOblique.pm",
+        "Font::Metrics::HelveticaBoldOblique" => "Font/Metrics/HelveticaBoldOblique.pm",
+        "Font::Metrics::TimesRoman" => "Font/Metrics/TimesRoman.pm",
+        "Font::Metrics::TimesBold" => "Font/Metrics/TimesBold.pm",
+        "Font::Metrics::TimesItalic" => "Font/Metrics/TimesItalic.pm",
+        "Font::Metrics::TimesBoldItalic" => "Font/Metrics/TimesBoldItalic.pm"
      }
 }
 
