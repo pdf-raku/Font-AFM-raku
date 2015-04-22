@@ -1,6 +1,9 @@
 # This -*- perl6 -*-  module is a simple parser for Adobe Font Metrics files.
 
-class Font::AFM:vers<1.20>;
+class Font::AFM:vers<1.20>
+    is Hash;
+
+=begin pod
 
 =head1 NAME
 
@@ -9,7 +12,7 @@ Font::AFM - Interface to Adobe Font Metrics files
 =head1 SYNOPSIS
 
  use Font::AFM;
- my $h = Font::AFM.new("Helvetica");
+ my $h = Font::AFM.new('Helvetica');
  my $copyright = $h.Notice;
  my $w = $h.Wx<aring>;
  $w = $h.stringwidth("Gisle", 10);
@@ -35,10 +38,10 @@ The following methods are available:
 Object constructor. Takes the name of the font as argument.
 Croaks if the font can not be found.
 
-=item $afm.latin1-wx-table()
+=item $afm.wx-table('latin1')
 
 Returns a 256-element array, where each element contains the width
-of the corresponding character in the iso-8859-1 character set.
+of the corresponding character in the iso-8859-1 (latin1) character set.
 
 =item $afm.stringwidth($string, [$fontsize])
 
@@ -144,7 +147,6 @@ be useful for debugging.
 
 =back
 
-
 The AFM specification can be found at:
 
    http://partners.adobe.com/asn/developer/pdfs/tn/5004.AFM_Spec.pdf
@@ -179,25 +181,11 @@ Ported from Perl 5 to 6 by David Warring Copyright 2014
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-=cut
+=end pod
 
 #-------perl 6 resumes here--------------------------------------------
 
-use Carp;
-use strict;
-use vars qw($VERSION @ISOLatin1Encoding);
-
-$VERSION = "1.20";
-
-
-# The metrics_path is used to locate metrics files
-#
-my $metrics_path = $ENV{METRICS} ||
-    "/usr/lib/afm:/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.";
-my @metrics_path = split(/:/, $metrics_path);
-foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
-
-@ISOLatin1Encoding = qw(
+our @ISOLatin1Encoding = <
  .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
  .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
  .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
@@ -225,103 +213,111 @@ foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
  ccedilla egrave eacute ecircumflex edieresis igrave iacute icircumflex
  idieresis eth ntilde ograve oacute ocircumflex otilde odieresis divide
  oslash ugrave uacute ucircumflex udieresis yacute thorn ydieresis
-);
+>;
 
 
 # Creates a new Font::AFM object.  Pass it the name of the font as parameter.
 # Synopisis:
 #
-#    $h = new Font::AFM "Helvetica";
+#    $h = Font::AFM.new("Helvetica");
 #
 
-sub new
-{
-   my($class, $fontname) = @_;
+multi submethod BUILD( Str :$name! is copy) {
+
+   my $data = {};
+
+   $name ~~ s/'.afm' $//;
    my $file;
-   $fontname =~ s/\.afm$//;
-   if ($^O eq 'VMS') {
-       $file = "sys\$ps_font_metrics:$fontname.afm";
+
+  if ~$*DISTRO ~~ m:i{^VMS} {
+       # Perl 5 porters note: Perl 6 on VMS?
+       $file = [~] 'sys$ps_font_metrics:', $name, '.afm';
    } else {
-       $file = "$fontname.afm";
-       unless ($file =~ m,^/,) {
-	   # not absolute, search the metrics path for the file
-	   foreach (@metrics_path) {
-	       if (-f "$_/$file") {
-		   $file = "$_/$file";
+       $file = $name ~ '.afm';
+       unless $*SPEC.is-absolute($file) {
+           # not absolute, search the metrics path for the file
+           my @metrics_path = %*ENV<METRICS>:exists
+             ?? %*ENV<METRICS>.split(/\:/)>>.subst(rx{'/'$},'')
+             !! < /usr/lib/afm  /usr/local/lib/afm
+                  /usr/openwin/lib/fonts/afm  . >;
+
+	   for @metrics_path {
+               my $candidate = $*SPEC.catfile( $_, $file);
+	       if $candidate.IO ~~ :f {
+		   $file = $candidate;
 		   last;
 	       }
 	   }
        }
    }
-   open(AFM, $file) or croak "Can't find the AFM file for $fontname";
-   my $self = bless { }, $class;
-   local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
-   while (<AFM>) {
-       next if /^StartKernData/ .. /^EndKernData/;  # kern data not parsed yet
-       next if /^StartComposites/ .. /^EndComposites/; # same for composites
-       if (/^StartCharMetrics/ .. /^EndCharMetrics/) {
+
+   die "Can't find the AFM file for $name ($file)"
+     unless $file.IO ~~ :e;
+
+   my $afm = $file.IO.open( :r );
+
+   for $afm.lines {
+
+       next if /^StartKernData/   ff /^EndKernData/;  # kern data not parsed yet
+       next if /^StartComposites/ ff /^EndComposites/; # same for composites
+       if (/^StartCharMetrics/    ff /^EndCharMetrics/) {
 	   # only lines that start with "C" or "CH" are parsed
-	   next unless /^CH?\s/;
-	   my($name) = /\bN\s+(\.?\w+)\s*;/;
-	   my($wx)   = /\bWX\s+(\d+)\s*;/;
-	   my($bbox)    = /\bB\s+([^;]+);/;
-	   $bbox =~ s/\s+$//;
+	   next unless /^ C H? ' ' /;
+	   my $name  = ~ m/ <|w> N  ' '+ <(\.?\w+)> ' '* ';' /;
+	   my $wx    = + m/ <|w> WX ' '+ <(\d+)>    ' '* ';' /;
+	   my $bbox  = ~ m/ <|w> B  ' '+ <(.+?)> ';' /;
+	   $bbox ~~ s/' '+$//;
 	   # Should also parse lingature data (format: L successor lignature)
-	   $self->{'wx'}{$name} = $wx;
-	   $self->{'bbox'}{$name} = $bbox;
+	   $data<wx>{$name} = $wx;
+	   $data<bbox>{$name} = $bbox;
 	   next;
        }
+
        last if /^EndFontMetrics/;
-       if (/(^\w+)\s+(.*)/) {
-	   my($key,$val) = ($1, $2);
-	   $key = lc $key;
-	   if (defined $self->{$key}) {
-	       $self->{$key} = [ $self->{$key} ] unless ref $self->{$key};
-	       push(@{$self->{$key}}, $val);
-	   } else {
-	       $self->{$key} = $val;
-	   }
+
+       if /(^\w+)' '+(.*)/ {
+           my $key = ~ $0;
+           my $val = ~ $1;
+           $data{$key}.push: $val;
        } else {
-	   print STDERR "Can't parse: $_";
+	   die "Can't parse: $_";
        }
    }
-   close(AFM);
-   unless (exists $self->{wx}->{'.notdef'}) {
-       $self->{wx}->{'.notdef'} = 0;
-       $self->{bbox}{'.notdef'} = "0 0 0 0";
+
+   $afm.close;
+
+   unless $data<wx><.notdef>:exists {
+       $data<wx><.notdef> = 0;
+       $data<bbox><.notdef> = "0 0 0 0";
    }
-   $self;
+
+   self.BUILD(:$data);
 }
+
+multi submethod BUILD( Hash :$data! ) {
+    self{.key} = .value for $data.pairs;
+}
+
+multi method new(Str $name)  { self.bless( :$name ) }
+multi method new(Hash $data) { self.bless( :$data ) }
 
 # Returns an 256 element array that maps from characters to width
-sub latin1_wx_table
-{
-    my($self) = @_;
-    unless ($self->{'_wx_table'}) {
+multi method wx-table($enc = 'latin1') {
+    self<_wx_table>{$enc} //= do {
 	my @wx;
 	for (0..255) {
-	    my $name = $ISOLatin1Encoding[$_];
-	    if (exists $self->{wx}->{$name}) {
-		push(@wx, $self->{wx}->{$name})
-	    } else {
-		push(@wx, $self->{wx}->{'.notdef'});
-	    }
+	    my $name = @ISOLatin1Encoding[$_];
+            @wx.push: self<wx>{$name} // self<wx><.notdef>;
 	}
-	$self->{'_wx_table'} = \@wx;
-    }
-    wantarray ? @{ $self->{'_wx_table'} } : $self->{'_wx_table'};
+	@wx
+    };
 }
 
-sub stringwidth
-{
-    my($self, $string, $pointsize) = @_;
-    return 0.0 unless defined $string;
-    return 0.0 unless length $string;
-
-    my @wx = $self->latin1_wx_table;
+method stringwidth( Str $string, Numeric $pointsize?, :$enc='latin1') {
+    my $wx = $.wx-table( $enc );
     my $width = 0.0;
-    for (unpack("C*", $string)) {
-	$width += $wx[$_];
+    for $string.ords {
+	$width += $wx[$_] // $wx[0];
     }
     if ($pointsize) {
 	$width *= $pointsize / 1000;
@@ -329,71 +325,19 @@ sub stringwidth
     $width;
 }
 
-sub FontName;
-sub FullName;
-sub FamilyName;
-sub Weight;
-sub ItalicAngle;
-sub IsFixedPitch;
-sub FontBBox;
-sub UnderlinePosition;
-sub UnderlineThickness;
-sub Version;
-sub Notice;
-sub Comment;
-sub EncodingScheme;
-sub CapHeight;
-sub XHeight;
-sub Ascender;
-sub Descender;
-sub Wx;
-sub BBox;
-
-# We implement all the access functions within this simple autoload
-# function.
-
-sub AUTOLOAD
-{
-    no strict 'vars';  # don't want to declare $AUTOLOAD
-
-    #print "AUTOLOAD: $AUTOLOAD\n";
-    if ($AUTOLOAD =~ /::DESTROY$/) {
-	eval "sub $AUTOLOAD {}";
-	goto &$AUTOLOAD;
-    } else {
-	my $name = $AUTOLOAD;
-	$name =~ s/^.*:://;
-	croak "Attribute $name not defined for AFM object"
-	    unless defined $_[0]->{lc $name};
-	return $_[0]->{lc $name};
-    }
+method !is-prop($prop-name) {
+    BEGIN constant KnownProps = set < FontName FullName FamilyName Weight
+    ItalicAngle IsFixedPitch FontBBox UnderlinePosition
+    UnderlineThickness Version Notice Comment EncodingScheme
+    CapHeight XHeight Ascender Descender Wx BBox>;
+    $prop-name ∈ KnownProps;
 }
 
-
-# Dumping might be useful for debugging
-
-sub dump
-{
-    my($self) = @_;
-    my($key, $val);
-    foreach $key (sort keys %$self) {
-	if (ref $self->{$key}) {
-	    if (ref $self->{$key} eq "ARRAY") {
-		print "$key = [\n\t", join("\n\t", @{$self->{$key}}), "\n]\n";
-	    } elsif (ref $self->{$key} eq "HASH") {
-		print "$key = {\n";
-		my $key2;
-		foreach $key2 (sort keys %{$self->{$key}}) {
-		    print "\t$key2 => $self->{$key}{$key2},\n";
-		}
-		print "}\n";
-	    } else {
-		print "$key = $self->{$key}\n";
-	    }
-	} else {
-	    print "$key = $self->{$key}\n";
-	}
-    }
+multi method FALLBACK(Str $prop-name where self!"is-prop"($prop-name)) {
+    self.WHAT.^add_method($prop-name, { self{$prop-name} } );
+    self."$prop-name"();
 }
 
-1;
+multi method FALLBACK($name) is default { die "unknown method: $name\n" }
+
+
