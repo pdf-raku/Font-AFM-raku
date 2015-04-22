@@ -65,7 +65,7 @@ of a single design. All fonts that are members of such a group should
 have exactly the same C<FamilyName>. Example of a family name is
 "Times".
 
-=item $afm->Weight
+=item $afm.Weight
 
 Human-readable name for the weight, or "boldness", attribute of a font.
 Examples are C<Roman>, C<Bold>, C<Light>.
@@ -139,11 +139,6 @@ Returns a hash table that maps from glyph names to the width of that glyph.
 
 Returns a hash table that maps from glyph names to bounding box information.
 The bounding box consist of four numbers: llx, lly, urx, ury.
-
-=item $afm.dump
-
-Dumps the content of the Font::AFM object to <$*OUT>.  Might sometimes
-be useful for debugging.
 
 =back
 
@@ -224,7 +219,7 @@ our @ISOLatin1Encoding = <
 
 multi submethod BUILD( Str :$name! is copy) {
 
-   my $data = {};
+   my $metrics = {};
 
    $name ~~ s/'.afm' $//;
    my $file;
@@ -268,8 +263,8 @@ multi submethod BUILD( Str :$name! is copy) {
 	   my $bbox  = ~ m/ <|w> B  ' '+ <(.+?)> ';' /;
 	   $bbox ~~ s/' '+$//;
 	   # Should also parse lingature data (format: L successor lignature)
-	   $data<wx>{$name} = $wx;
-	   $data<bbox>{$name} = $bbox;
+	   $metrics<Wx>{$name} = $wx;
+	   $metrics<BBox>{$name} = $bbox;
 	   next;
        }
 
@@ -278,7 +273,7 @@ multi submethod BUILD( Str :$name! is copy) {
        if /(^\w+)' '+(.*)/ {
            my $key = ~ $0;
            my $val = ~ $1;
-           $data{$key}.push: $val;
+           $metrics{$key}.push: $val;
        } else {
 	   die "Can't parse: $_";
        }
@@ -286,20 +281,20 @@ multi submethod BUILD( Str :$name! is copy) {
 
    $afm.close;
 
-   unless $data<wx><.notdef>:exists {
-       $data<wx><.notdef> = 0;
-       $data<bbox><.notdef> = "0 0 0 0";
+   unless $metrics<Wx><.notdef>:exists {
+       $metrics<Wx><.notdef> = 0;
+       $metrics<BBox><.notdef> = "0 0 0 0";
    }
 
-   self.BUILD(:$data);
+   self.BUILD(:$metrics);
 }
 
-multi submethod BUILD( Hash :$data! ) {
-    self{.key} = .value for $data.pairs;
+multi submethod BUILD( Hash :$metrics! ) {
+    self{.key} = .value for $metrics.pairs;
 }
 
 multi method new(Str $name)  { self.bless( :$name ) }
-multi method new(Hash $data) { self.bless( :$data ) }
+multi method new(Hash $metrics) { self.bless( :$metrics ) }
 
 # Returns an 256 element array that maps from characters to width
 multi method wx-table($enc = 'latin1') {
@@ -307,7 +302,7 @@ multi method wx-table($enc = 'latin1') {
 	my @wx;
 	for (0..255) {
 	    my $name = @ISOLatin1Encoding[$_];
-            @wx.push: self<wx>{$name} // self<wx><.notdef>;
+            @wx.push: self<Wx>{$name} // self<Wx><.notdef>;
 	}
 	@wx
     };
