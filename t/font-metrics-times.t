@@ -1,14 +1,9 @@
 use Test;
-plan 2;
+plan 1;
 %*ENV<METRICS> = 'etc/Core14_AFMs';
 
-require Font::Metrics::TimesRoman;
+require ::('Font::Metrics::TimesRoman');
+my $metrics = ::('Font::Metrics::TimesRoman').new;
 
-is +@Font::Metrics::TimesRoman::wx, 256, 'wx elems';
-
-sub width(Str $string, Array $wx) {
-    [+] $string.ords.map({ $wx[$_] });
-}
-
-is_approx  width("Perl", \@Font::Metrics::TimesRoman::wx), 1.611;
+is_approx $metrics.stringwidth("Perl",1), 1.611;
 
