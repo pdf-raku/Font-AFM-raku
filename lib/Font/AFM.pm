@@ -41,7 +41,7 @@ Croaks if the font can not be found.
 =item $afm.wx-table('latin1')
 
 Returns a 256-element array, where each element contains the width
-of the corresponding character in the iso-8859-1 (latin1) character set.
+of the corresponding character in the latin1 character set.
 
 =item $afm.stringwidth($string, [$fontsize])
 
@@ -180,42 +180,13 @@ it under the same terms as Perl itself.
 
 #-------perl 6 resumes here--------------------------------------------
 
-our @ISOLatin1Encoding = <
- .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
- .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
- .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
- .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef space
- exclam quotedbl numbersign dollar percent ampersand quoteright
- parenleft parenright asterisk plus comma minus period slash zero one
- two three four five six seven eight nine colon semicolon less equal
- greater question at A B C D E F G H I J K L M N O P Q R S
- T U V W X Y Z bracketleft backslash bracketright asciicircum
- underscore quoteleft a b c d e f g h i j k l m n o p q r s
- t u v w x y z braceleft bar braceright asciitilde .notdef .notdef
- .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
- .notdef .notdef .notdef .notdef .notdef .notdef .notdef dotlessi grave
- acute circumflex tilde macron breve dotaccent dieresis .notdef ring
- cedilla .notdef hungarumlaut ogonek caron space exclamdown cent
- sterling currency yen brokenbar section dieresis copyright ordfeminine
- guillemotleft logicalnot hyphen registered macron degree plusminus
- twosuperior threesuperior acute mu paragraph periodcentered cedilla
- onesuperior ordmasculine guillemotright onequarter onehalf threequarters
- questiondown Agrave Aacute Acircumflex Atilde Adieresis Aring AE
- Ccedilla Egrave Eacute Ecircumflex Edieresis Igrave Iacute Icircumflex
- Idieresis Eth Ntilde Ograve Oacute Ocircumflex Otilde Odieresis
- multiply Oslash Ugrave Uacute Ucircumflex Udieresis Yacute Thorn
- germandbls agrave aacute acircumflex atilde adieresis aring ae
- ccedilla egrave eacute ecircumflex edieresis igrave iacute icircumflex
- idieresis eth ntilde ograve oacute ocircumflex otilde odieresis divide
- oslash ugrave uacute ucircumflex udieresis yacute thorn ydieresis
->;
-
-
 # Creates a new Font::AFM object.  Pass it the name of the font as parameter.
 # Synopisis:
 #
 #    $h = Font::AFM.new("Helvetica");
 #
+
+use Font::Encoding;
 
 multi submethod BUILD( Str :$name! is copy) {
 
@@ -273,7 +244,7 @@ multi submethod BUILD( Str :$name! is copy) {
        if /(^\w+)' '+(.*)/ {
            my $key = ~ $0;
            my $val = ~ $1;
-           $metrics{$key}.push: $val;
+           $metrics{$key} = $val;
        } else {
 	   die "Can't parse: $_";
        }
@@ -301,7 +272,7 @@ multi method wx-table($enc = 'latin1') {
     self<_wx_table>{$enc} //= do {
 	my @wx;
 	for (0..255) {
-	    my $name = @ISOLatin1Encoding[$_];
+	    my $name = $Font::Encoding::latin1[$_];
             @wx.push: self<Wx>{$name} // self<Wx><.notdef>;
 	}
 	@wx

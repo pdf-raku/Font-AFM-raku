@@ -6,6 +6,7 @@
     "source-url"  : "git://github.com/p6-pdf/perl6-Font-AFM.git",
     "provides"    : {
         "Font::AFM" : "lib/Font/AFM.pm",
+        "Font::Encoding" : "Font/Encoding.pm",
         "Font::Metrics::Courier" : "Font/Metrics/Courier.pm",
         "Font::Metrics::CourierBold" : "Font/Metrics/CourierBold.pm",
         "Font::Metrics::CourierOblique" : "Font/Metrics/CourierOblique.pm",
