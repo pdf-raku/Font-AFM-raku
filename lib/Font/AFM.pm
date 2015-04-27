@@ -180,6 +180,27 @@ it under the same terms as Perl itself.
 
 #-------perl 6 resumes here--------------------------------------------
 
+BEGIN our @CoreFonts = BEGIN our @FONTS = <Courier
+    Courier-Bold
+    Courier-Oblique
+    Courier-BoldOblique
+
+    Helvetica
+    Helvetica-Bold
+    Helvetica-Oblique
+    Helvetica-BoldOblique
+  
+    Times-Roman
+    Times-Bold
+    Times-Italic
+    Times-BoldItalic
+    >;
+
+method class-name($font-name) {
+    (my $fontmod = $font-name) ~~ s:g/'-'//;
+    "Font::Metrics::$fontmod"
+}
+
 # Creates a new Font::AFM object.  Pass it the name of the font as parameter.
 # Synopisis:
 #
@@ -267,13 +288,15 @@ multi submethod BUILD( Hash :$metrics! ) {
 multi method new(Str $name)  { self.bless( :$name ) }
 multi method new(Hash $metrics) { self.bless( :$metrics ) }
 
-# Returns an 256 element array that maps from characters to width
+# Returns an 256 element latin1-ish array that maps from characters to width
 multi method wx-table($enc = 'latin1') {
     self<_wx_table>{$enc} //= do {
 	my @wx;
 	for (0..255) {
-	    my $name = $Font::Encoding::latin1[$_];
-            @wx.push: self<Wx>{$name} // self<Wx><.notdef>;
+	    my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
+            $glyph-name = '.notdef'
+                if $glyph-name ~~ /^ 'control'/;
+            @wx.push: self<Wx>{$glyph-name} // self<Wx><.notdef>;
 	}
 	@wx
     };

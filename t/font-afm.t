@@ -1,5 +1,5 @@
 use Test;
-plan 5;
+plan 6;
 
 %*ENV<METRICS> = 'etc/Core14_AFMs';
 
@@ -21,7 +21,10 @@ is $font.Weight, 'Medium', '$font.Weight accessor';
 dies_ok {$font.Guff}, 'unknown method - dies';
 
 my $sw = $font.stringwidth("Gisle Aas");
-is $sw, 4279, 'Stringwith for Helvetica'
-    or diag "The stringwidth of 'Gisle Aas' should be 4279 (it was "~$sw~")";
+is $sw, 4279, 'Stringwith for Helvetica';
+
+$sw = $font.stringwidth("Gisle Aas", 12);
+is-approx $sw, 4279 * 12 / 1000, 'Stringwith with point-size';
+
 
 

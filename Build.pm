@@ -15,36 +15,23 @@ use Font::AFM;
 use Panda::Builder;
 use Panda::Common;
 
-BEGIN our @FONTS = <Courier
-    Courier-Bold
-    Courier-Oblique
-    Courier-BoldOblique
-
-    Helvetica
-    Helvetica-Bold
-    Helvetica-Oblique
-    Helvetica-BoldOblique
-  
-    Times-Roman
-    Times-Bold
-    Times-Italic
-    Times-BoldItalic
-    >;
-
 class Build is Panda::Builder {
 
     method !build-metrics {
-        my $lib-dir = $*SPEC.catdir('lib', 'Font', 'Metrics');
-        mkdir( $lib-dir, 0o755);
 
-        for @FONTS -> $font {
-            (my $fontmod = $font) ~~ s:g/'-'//;
-            my $class-name = "Font::Metrics::$fontmod";
+        for @Font::AFM::CoreFonts -> $font {
+            my $class-name = Font::AFM.class-name( $font );
+            my @parts = $class-name.split('::');
+            my $mod-name = @parts.pop;
+            my $lib-dir = $*SPEC.catdir('lib', |@parts);
+            mkdir( $lib-dir, 0o755)
+                unless $lib-dir.IO ~~ :e;
+
             my $afm = Font::AFM.new: $font;
 
             say "Building $font => $class-name";
             {
-                my $gen-path = $*SPEC.catfile($lib-dir, "$fontmod.pm");
+                my $gen-path = $*SPEC.catfile($lib-dir, "$mod-name.pm");
                 my $*OUT = open( $gen-path, :w);
 
                 my $metrics = %( $afm ).item;
@@ -85,30 +72,22 @@ class Build is Panda::Builder {
         die "unable to load encodings: $encoding-path"
             unless $encoding-path ~~ :e;
 
-        my @latin1;
-        my $glyphs = {};
+        my $glyph = {};
+        my $encoding = {};
 
         for $encoding-path.lines {
             next if /^ '#'/ || /^ $/;
-            my ($glyph,$ords-hex) = .split(';');
+            my ($glyph-name,$ords-hex) = .split(';');
             my @code-points = $ords-hex.split(' ').map({ :16($_).chr });
 
             my $grapheme = [~] @code-points;
         
-            if $grapheme.chars == 1 && $grapheme.ord <= 255 && $glyph !~~ /^'control'/ {
-                # latin1-ish
-                @latin1[ $grapheme.ord ] //= $glyph
-            }
-  
             # Assumes chars will commonly combine under Perl6 NFG - untested
-            warn "$glyph: unable to combine characters $ords-hex: $grapheme"
+            warn "$glyph-name: unable to combine characters $ords-hex: $grapheme"
                 unless $grapheme.chars == 1;
 
-            $glyphs{$glyph} //= $grapheme.ords;
-        }
-
-        for @latin1.keys {
-             @latin1[$_] //= '.notdef';
+            $encoding{$glyph-name} //= $grapheme.ord;
+            $glyph{$grapheme.ord} //= $glyph-name;
         }
 
         {
@@ -127,9 +106,9 @@ class Build is Panda::Builder {
 
             --CODE-GEN--
 
-            say "BEGIN our \$latin1 = {@latin1.item.perl};";
+            say "BEGIN our \$glyph = {$glyph.perl};";
             say "";
-            say "BEGIN our \$glyphs = {$glyphs.perl};";
+            say "BEGIN our \$encoding = {$encoding.perl};";
         }
     }
 
@@ -144,13 +123,13 @@ class Build is Panda::Builder {
 }
 
 # Build.pm can also be run standalone 
-sub MAIN(:$indir = '.', :$metrics-path?, *@font-names ) {
+sub MAIN(:$indir = '.', :$metrics-path?, :$glyphs-path ) {
 
     %*ENV<METRICS> = $metrics-path
         if $metrics-path.defined;
 
-    @FONTS = @font-names
-        if +@font-names;
+    %*ENV<GLYPHS> = $glyphs-path
+        if $glyphs-path.defined;
 
     Build.new.build($indir);
 }
