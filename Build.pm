@@ -90,13 +90,21 @@ class Build is Panda::Builder {
 
         for $encoding-path.lines {
             next if /^ '#'/ || /^ $/;
-            my ($glyph,$code-points-hex) = .split(';');
-            my $code-points = [ $code-points-hex.split(' ').map({ :16($_) }) ];
-            if $code-points == 1 && $code-points[0] <= 255 && $glyph !~~ /^'control'/ {
+            my ($glyph,$ords-hex) = .split(';');
+            my @code-points = $ords-hex.split(' ').map({ :16($_).chr });
+
+            my $grapheme = [~] @code-points;
+        
+            if $grapheme.chars == 1 && $grapheme.ord <= 255 && $glyph !~~ /^'control'/ {
                 # latin1-ish
-                @latin1[ $code-points[0] ] //= $glyph
+                @latin1[ $grapheme.ord ] //= $glyph
             }
-            $glyphs{$glyph} //= $code-points;
+  
+            # Assumes chars will commonly combine under Perl6 NFG - untested
+            warn "$glyph: unable to combine characters $ords-hex: $grapheme"
+                unless $grapheme.chars == 1;
+
+            $glyphs{$glyph} //= $grapheme.ords;
         }
 
         for @latin1.keys {
