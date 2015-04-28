@@ -191,13 +191,16 @@ BEGIN our %CoreFonts =
     Helvetica-Italic => 'Font::Metrics::HelveticaItalic',
     Helvetica-BoldItalic => 'Font::Metrics::HelveticaBoldItalic',
 
-    Times-Roman => 'Font::Metrics::Times',
+    Times => 'Font::Metrics::TimesRoman',
     Times-Bold => 'Font::Metrics::TimesBold',
     Times-Italic => 'Font::Metrics::TimesItalic',
     Times-BoldItalic => 'Font::Metrics::TimesBoldItalic',
    ;
 
-method class-name($font-name) {
+method class-name($family-name, Bool :$bold, Bool :$italic) {
+    my $font-name = $family-name.subst(/['-'.*]?['.afm']? $/, '');
+    $font-name ~= '-' ~ ($bold ?? 'Bold' !! '') ~ ($italic ?? 'Italic' !! '')
+        if $bold || $italic;
     %CoreFonts{$font-name}
         or die "unknown font: $font-name";
 }
