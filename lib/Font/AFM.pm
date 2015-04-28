@@ -314,10 +314,11 @@ multi method wx-table($enc = 'latin1') {
 }
 
 method stringwidth( Str $string, Numeric $pointsize?, :$enc='latin1') {
-    my $wx = $.wx-table( $enc );
     my $width = 0.0;
     for $string.ords {
-	$width += $wx[$_] // $wx[0];
+        my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
+        my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
+	$width += $glyph-width;
     }
     if ($pointsize) {
 	$width *= $pointsize / 1000;
