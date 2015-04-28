@@ -180,28 +180,36 @@ it under the same terms as Perl itself.
 
 #-------perl 6 resumes here--------------------------------------------
 
-BEGIN our @CoreFonts = BEGIN our @FONTS = <Courier
-    Courier-Bold
-    Courier-Oblique
-    Courier-BoldOblique
+BEGIN our %CoreFonts =
+    Courier => 'Font::Metrics::Courier',
+    Courier-Bold => 'Font::Metrics::CourierBold',
+    Courier-Italic => 'Font::Metrics::CourierItalic',
+    Courier-BoldItalic => 'Font::Metrics::CourierBoldItalic',
 
-    Helvetica
-    Helvetica-Bold
-    Helvetica-Oblique
-    Helvetica-BoldOblique
-  
-    Times-Roman
-    Times-Bold
-    Times-Italic
-    Times-BoldItalic
-    >;
+    Helvetica => 'Font::Metrics::Helvetica',
+    Helvetica-Bold => 'Font::Metrics::HelveticaBold',
+    Helvetica-Italic => 'Font::Metrics::HelveticaItalic',
+    Helvetica-BoldItalic => 'Font::Metrics::HelveticaBoldItalic',
+
+    Times-Roman => 'Font::Metrics::Times',
+    Times-Bold => 'Font::Metrics::TimesBold',
+    Times-Italic => 'Font::Metrics::TimesItalic',
+    Times-BoldItalic => 'Font::Metrics::TimesBoldItalic',
+   ;
 
 method class-name($font-name) {
-    (my $fontmod = $font-name) ~~ s:g/'-'//;
-    "Font::Metrics::$fontmod"
+    %CoreFonts{$font-name}
+        or die "unknown font: $font-name";
 }
 
-# Creates a new Font::AFM object.  Pass it the name of the font as parameter.
+method core-font($font-name) {
+    my $class-name = self.class-name($font-name);
+    require ::($class-name);
+    ::($class-name).new;
+}
+
+# Creates a new Font::AFM object from an AFM file.  Pass it the name of the
+# font as parameter.
 # Synopisis:
 #
 #    $h = Font::AFM.new("Helvetica");
