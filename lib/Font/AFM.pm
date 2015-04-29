@@ -180,29 +180,8 @@ it under the same terms as Perl itself.
 
 #-------perl 6 resumes here--------------------------------------------
 
-BEGIN our %CoreFonts =
-    Courier => 'Font::Metrics::Courier',
-    Courier-Bold => 'Font::Metrics::CourierBold',
-    Courier-Italic => 'Font::Metrics::CourierItalic',
-    Courier-BoldItalic => 'Font::Metrics::CourierBoldItalic',
-
-    Helvetica => 'Font::Metrics::Helvetica',
-    Helvetica-Bold => 'Font::Metrics::HelveticaBold',
-    Helvetica-Italic => 'Font::Metrics::HelveticaItalic',
-    Helvetica-BoldItalic => 'Font::Metrics::HelveticaBoldItalic',
-
-    Times => 'Font::Metrics::TimesRoman',
-    Times-Bold => 'Font::Metrics::TimesBold',
-    Times-Italic => 'Font::Metrics::TimesItalic',
-    Times-BoldItalic => 'Font::Metrics::TimesBoldItalic',
-   ;
-
-method class-name($family-name, Bool :$bold, Bool :$italic) {
-    my $font-name = $family-name.subst(/['-'.*]?['.afm']? $/, '');
-    $font-name ~= '-' ~ ($bold ?? 'Bold' !! '') ~ ($italic ?? 'Italic' !! '')
-        if $bold || $italic;
-    %CoreFonts{$font-name}
-        or die "unknown font: $font-name";
+method class-name($font-name) {
+    [~] "Font::Metrics::", $font-name.subst( / '-' | [:i'.afm'$] /, ''):g;
 }
 
 method core-font($font-name) {

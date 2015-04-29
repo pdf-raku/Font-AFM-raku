@@ -19,17 +19,23 @@ class Build is Panda::Builder {
 
     method !build-metrics {
 
-        for @Font::AFM::CoreFonts -> $font {
-            my $class-name = Font::AFM.class-name( $font );
+        BEGIN our @CoreFonts = <
+            Courier      Courier-Bold     Courier-Oblique    Courier-BoldOblique
+            Helvetica    Helvetica-Bold   Helvetica-Oblique  Helvetica-BoldOblique
+            Times-Roman  Times-Bold       Times-Italic       Times-BoldItalic
+        >;
+
+        for @CoreFonts -> $font-name {
+            my $class-name = Font::AFM.class-name( $font-name );
             my @parts = $class-name.split('::');
             my $mod-name = @parts.pop;
-            my $lib-dir = $*SPEC.catdir('lib', |@parts);
+            my $lib-dir = $*SPEC.catdir('lib', @parts);
             mkdir( $lib-dir, 0o755)
                 unless $lib-dir.IO ~~ :e;
 
-            my $afm = Font::AFM.new: $font;
+            my $afm = Font::AFM.new: $font-name;
 
-            say "Building $font => $class-name";
+            say "Building $font-name => $class-name";
             {
                 my $gen-path = $*SPEC.catfile($lib-dir, "$mod-name.pm");
                 my $*OUT = open( $gen-path, :w);
@@ -38,7 +44,7 @@ class Build is Panda::Builder {
 
                 print q:s:c:to"--CODE-GEN--";
                 use v6;
-                # Font metrics for $font
+                # Font metrics for $font-name
                 #
                 # DO NOT EDIT!!!
                 #
