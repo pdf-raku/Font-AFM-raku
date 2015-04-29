@@ -181,7 +181,7 @@ it under the same terms as Perl itself.
 #-------perl 6 resumes here--------------------------------------------
 
 method class-name($font-name) {
-    [~] "Font::Metrics::", $font-name.subst( / '-' | [:i'.afm'$] /, ''):g;
+    [~] "Font::Metrics::", $font-name.subst( /[:i'.afm'$]/, '').lc;
 }
 
 method core-font($font-name) {
