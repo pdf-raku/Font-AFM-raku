@@ -82,11 +82,15 @@ If C<true>, the font is a fixed-pitch
 
 =item $afm.FontBBox
 
-A string of four numbers giving the lower-left x, lower-left y,
+An array of integers giving the lower-left x, lower-left y,
 upper-right x, and upper-right y of the font bounding box. The font
 bounding box is the smallest rectangle enclosing the shape that would
 result if all the characters of the font were placed with their
 origins coincident, and then painted.
+
+=item $afm.Kern
+
+A two dimenionsal hash of from and two glyphs and kerning adjustment.
 
 =item $afm.UnderlinePosition
 
@@ -163,15 +167,14 @@ environment variable. The default path built into this library is:
 
 =head1 BUGS
 
-Kerning data and composite character data are not yet parsed.
-Ligature data is not parsed.
+Composite character and Ligature data are not parsed.
 
 
 =head1 COPYRIGHT
 
 Copyright 1995-1998 Gisle Aas. All rights reserved.
 
-Ported from Perl 5 to 6 by David Warring Copyright 2014
+Ported from Perl 5 to 6 by David Warring Copyright 2015
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -235,15 +238,19 @@ multi submethod BUILD( Str :$name! is copy) {
 
    for $afm.lines {
 
-       next if /^StartKernData/   ff /^EndKernData/;  # kern data not parsed yet
+       if /^StartKernData/   ff /^EndKernData/ {
+           next unless m:s/ <|w> KPX  $<glyph1>=['.'?\w+] $<glyph2>=['.'?\w+] $<kern>=[< + - >?\d+] /;
+           $metrics<Kern>{ $<glyph1> }{ $<glyph2> } = $<kern>.Int;
+       }
        next if /^StartComposites/ ff /^EndComposites/; # same for composites
-       if (/^StartCharMetrics/    ff /^EndCharMetrics/) {
+       if /^StartCharMetrics/    ff /^EndCharMetrics/ {
 	   # only lines that start with "C" or "CH" are parsed
 	   next unless /^ C H? ' ' /;
-	   my $name  = ~ m/ <|w> N  ' '+ <(\.?\w+)> ' '* ';' /;
-	   my $wx    = + m/ <|w> WX ' '+ <(\d+)>    ' '* ';' /;
-	   my $bbox  = ~ m/ <|w> B  ' '+ <(.+?)> ';' /;
-	   $bbox ~~ s/' '+$//;
+	   my $name  = ~ m:s/ <|w> N  <('.'?\w+)> ';' /;
+	   my $wx    = + m:s/ <|w> WX <(\d+)>     ';' /;
+           warn "no bbox: $_"
+	       unless m:s/ <|w> B [ (< + - >?\d+) ]+ ';' /;
+	   my $bbox = [ @0.map: { .Int } ];
 	   # Should also parse lingature data (format: L successor lignature)
 	   $metrics<Wx>{$name} = $wx;
 	   $metrics<BBox>{$name} = $bbox;
@@ -265,7 +272,7 @@ multi submethod BUILD( Str :$name! is copy) {
 
    unless $metrics<Wx><.notdef>:exists {
        $metrics<Wx><.notdef> = 0;
-       $metrics<BBox><.notdef> = "0 0 0 0";
+       $metrics<BBox><.notdef> = [ 0, 0, 0, 0];
    }
 
    self.BUILD(:$metrics);
@@ -292,12 +299,19 @@ multi method wx-table($enc = 'latin1') {
     };
 }
 
-method stringwidth( Str $string, Numeric $pointsize?, :$enc='latin1') {
+method stringwidth( Str $string, Numeric $pointsize?, :$enc='latin1', Bool :$kern) {
     my $width = 0.0;
+    my $prev-glyph;
+    my $kern-tab = self.Kern if $kern;
     for $string.ords {
         my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
         my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
 	$width += $glyph-width;
+
+        $width += $kern-tab{$prev-glyph}{$glyph-name}
+           if $kern && $prev-glyph && ($kern-tab{$prev-glyph}{$glyph-name}:exists);
+
+        $prev-glyph = $glyph-name;
     }
     if ($pointsize) {
 	$width *= $pointsize / 1000;
@@ -309,7 +323,7 @@ method !is-prop($prop-name) {
     BEGIN constant KnownProps = set < FontName FullName FamilyName Weight
     ItalicAngle IsFixedPitch FontBBox UnderlinePosition
     UnderlineThickness Version Notice Comment EncodingScheme
-    CapHeight XHeight Ascender Descender Wx BBox>;
+    CapHeight XHeight Ascender Descender Wx BBox Kern>;
     $prop-name ∈ KnownProps;
 }
 
