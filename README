@@ -7,7 +7,6 @@ SYNOPSIS
      my $copyright = $h.Notice;
      my $w = $h.Wx<aring>;
      $w = $h.stringwidth("Gisle", 10);
-     $h.dump;  # for debugging
 
 DESCRIPTION
     This module implements the Font::AFM class. Objects of this
@@ -64,11 +63,15 @@ DESCRIPTION
        fixed-pitch (monospaced) font.
 
     $afm.FontBBox
-       A string of four numbers giving the lower-left x, lower-left
+       An array of integers giving the lower-left x, lower-left
        y, upper-right x, and upper-right y of the font bounding box.
        The font bounding box is the smallest rectangle enclosing the
        shape that would result if all the characters of the font
        were placed with their origins coincident, and then painted.
+
+    $afm.Kern
+       A two dimenionsal hash of from and two glyphs and kerning
+       amount.
 
     $afm.UnderlinePosition
        Recommended distance from the baseline for positioning
@@ -129,13 +132,12 @@ ENVIRONMENT
                /usr/lib/afm:/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.
 
 BUGS
-    Kerning data and composite character data is not yet parsed.
-    Ligature data is not parsed.
+    Composite character and Ligature data are not parsed.
 
 COPYRIGHT
     Copyright 1995-1998 Gisle Aas. All rights reserved.
 
-    Ported from Perl 5 to 6 by David Warring Copyright 2014.
+    Ported from Perl 5 to 6 by David Warring Copyright 2015.
 
     This program is free software; you can redistribute it and/or
     modify it under the same terms as Perl itself.
