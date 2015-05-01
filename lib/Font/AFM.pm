@@ -43,10 +43,11 @@ Croaks if the font can not be found.
 Returns a 256-element array, where each element contains the width
 of the corresponding character in the latin1 character set.
 
-=item $afm.stringwidth($string, [$fontsize])
+=item $afm.stringwidth($string, [$fontsize], :kern)
 
 Returns the width of the argument string. A second
 argument can be used to scale the width according to the font size.
+
 
 =item $afm.FontName
 
@@ -88,9 +89,9 @@ bounding box is the smallest rectangle enclosing the shape that would
 result if all the characters of the font were placed with their
 origins coincident, and then painted.
 
-=item $afm.Kern
+=item $afm.KernData
 
-A two dimenionsal hash of from and two glyphs and kerning adjustment.
+A two dimenionsal hash of from and two glyphs and kerning amount.
 
 =item $afm.UnderlinePosition
 
@@ -240,7 +241,7 @@ multi submethod BUILD( Str :$name! is copy) {
 
        if /^StartKernData/   ff /^EndKernData/ {
            next unless m:s/ <|w> KPX  $<glyph1>=['.'?\w+] $<glyph2>=['.'?\w+] $<kern>=[< + - >?\d+] /;
-           $metrics<Kern>{ $<glyph1> }{ $<glyph2> } = $<kern>.Int;
+           $metrics<KernData>{ $<glyph1> }{ $<glyph2> } = $<kern>.Int;
        }
        next if /^StartComposites/ ff /^EndComposites/; # same for composites
        if /^StartCharMetrics/    ff /^EndCharMetrics/ {
@@ -299,17 +300,17 @@ multi method wx-table($enc = 'latin1') {
     };
 }
 
-method stringwidth( Str $string, Numeric $pointsize?, :$enc='latin1', Bool :$kern) {
+method stringwidth( Str $string, Numeric $pointsize?, Bool :$kern ) {
     my $width = 0.0;
     my $prev-glyph;
-    my $kern-tab = self.Kern if $kern;
+    my $kern-data = self.KernData if $kern;
     for $string.ords {
         my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
         my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
 	$width += $glyph-width;
 
-        $width += $kern-tab{$prev-glyph}{$glyph-name}
-           if $kern && $prev-glyph && ($kern-tab{$prev-glyph}{$glyph-name}:exists);
+        $width += $kern-data{$prev-glyph}{$glyph-name}
+           if $kern && $prev-glyph && ($kern-data{$prev-glyph}{$glyph-name}:exists);
 
         $prev-glyph = $glyph-name;
     }
@@ -319,11 +320,50 @@ method stringwidth( Str $string, Numeric $pointsize?, :$enc='latin1', Bool :$ker
     $width;
 }
 
+#| kern a string. decompose into an array of: (['string', $width, $kern] , ... )
+method kern( Str $string, Numeric $pointsize? ) {
+    my $width = 0.0;
+    my $prev-glyph;
+    my $str = '';
+    my @kerns;
+    my $kern-data = self.KernData;
+
+    for $string.ords {
+        
+        my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
+        my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
+
+        if $prev-glyph && ($kern-data{$prev-glyph}{$glyph-name}:exists) {
+            my $kern = $kern-data{$prev-glyph}{$glyph-name};
+            if ($pointsize) {
+                $width *= $pointsize / 1000;
+                $kern *= $pointsize / 1000;
+            }
+            @kerns.push: [$str, $width, $kern ];
+            $str = '';
+            $width = 0.0;
+        }
+
+	$width += $glyph-width;
+        $str ~= .chr;
+        $prev-glyph = $glyph-name;
+    }
+
+    if $str.chars {
+        if ($pointsize) {
+            $width *= $pointsize / 1000;
+        }
+        @kerns.push: [ $str, $width, 0]
+    }
+
+    @kerns;
+}
+
 method !is-prop($prop-name) {
     BEGIN constant KnownProps = set < FontName FullName FamilyName Weight
     ItalicAngle IsFixedPitch FontBBox UnderlinePosition
     UnderlineThickness Version Notice Comment EncodingScheme
-    CapHeight XHeight Ascender Descender Wx BBox Kern>;
+    CapHeight XHeight Ascender Descender Wx BBox KernData>;
     $prop-name ∈ KnownProps;
 }
 

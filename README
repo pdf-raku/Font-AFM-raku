@@ -30,7 +30,7 @@ DESCRIPTION
        width of the corresponding character in the iso-8859-1
        character set.
 
-    $afm.stringwidth($string, [$fontsize])
+    $afm.stringwidth($string, [$fontsize], :kern)
        Returns the width of the string passed as argument. The
        string is assumed to be encoded in the iso-8859-1 character
        set. A second argument can be used to scale the width
@@ -69,8 +69,8 @@ DESCRIPTION
        shape that would result if all the characters of the font
        were placed with their origins coincident, and then painted.
 
-    $afm.Kern
-       A two dimenionsal hash of from and two glyphs and kerning
+    $afm.KernData
+       A two dimensional hash of from and two glyphs and kerning
        amount.
 
     $afm.UnderlinePosition
