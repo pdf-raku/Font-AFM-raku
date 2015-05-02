@@ -304,8 +304,9 @@ method stringwidth( Str $string, Numeric $pointsize?, Bool :$kern ) {
     my $width = 0.0;
     my $prev-glyph;
     my $kern-data = self.KernData if $kern;
-    for $string.ords {
-        my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
+    my @glyph-names = Font::Encoding.glyph-names( $string );
+
+    for @glyph-names -> $glyph-name {
         my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
 	$width += $glyph-width;
 
@@ -327,10 +328,11 @@ method kern( Str $string, Numeric $pointsize? ) {
     my $str = '';
     my @kerns;
     my $kern-data = self.KernData;
+    my @glyph-names = Font::Encoding.glyph-names( $string );
+    my $char-tab = $Font::Encoding::char;
 
-    for $string.ords {
+    for @glyph-names -> $glyph-name {
         
-        my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
         my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
 
         if $prev-glyph && ($kern-data{$prev-glyph}{$glyph-name}:exists) {
@@ -345,7 +347,7 @@ method kern( Str $string, Numeric $pointsize? ) {
         }
 
 	$width += $glyph-width;
-        $str ~= .chr;
+        $str ~= [~] $char-tab{$glyph-name}>>.chr;
         $prev-glyph = $glyph-name;
     }
 
