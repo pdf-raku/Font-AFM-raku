@@ -347,7 +347,7 @@ method kern( Str $string, Numeric $pointsize? ) {
         }
 
 	$width += $glyph-width;
-        $str ~= [~] $char-tab{$glyph-name}>>.chr;
+        $str ~= Font::Encoding.string( $glyph-name );
         $prev-glyph = $glyph-name;
     }
 
