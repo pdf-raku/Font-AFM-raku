@@ -201,7 +201,9 @@ method core-font($font-name) {
 #    $h = Font::AFM.new("Helvetica");
 #
 
-use Font::Encoding;
+use Font::Encoding::PDF;
+
+has $.encoding;
 
 multi submethod BUILD( Str :$name! is copy) {
 
@@ -281,22 +283,23 @@ multi submethod BUILD( Str :$name! is copy) {
 
 multi submethod BUILD( Hash :$metrics! ) {
     self{.key} = .value for $metrics.pairs;
+    $!encoding = Font::Encoding::PDF.new;
 }
 
 multi method new(Str $name)  { self.bless( :$name ) }
 multi method new(Hash $metrics) { self.bless( :$metrics ) }
 
-# Returns an 256 element latin1-ish array that maps from characters to width
+# Returns an 256 element latin1 subset that maps from characters to width
 multi method wx-table($enc = 'latin1') {
     self<_wx_table>{$enc} //= do {
-	my @wx;
+        my @wx;
 	for (0..255) {
-	    my $glyph-name = $Font::Encoding::glyph{$_} // '.notdef';
+	    my $glyph-name = $.encoding.glyph-name(.chr) // '.notdef';
             $glyph-name = '.notdef'
                 if $glyph-name ~~ /^ 'control'/;
             @wx.push: self<Wx>{$glyph-name} // self<Wx><.notdef>;
 	}
-	@wx
+	@wx;
     };
 }
 
@@ -304,7 +307,7 @@ method stringwidth( Str $string, Numeric $pointsize?, Bool :$kern ) {
     my $width = 0.0;
     my $prev-glyph;
     my $kern-data = self.KernData if $kern;
-    my @glyph-names = Font::Encoding.glyph-names( $string );
+    my @glyph-names = self.encoding.glyph-names( $string ).list;
 
     for @glyph-names -> $glyph-name {
         my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
@@ -328,8 +331,7 @@ method kern( Str $string, Numeric $pointsize? ) {
     my $str = '';
     my @kerns;
     my $kern-data = self.KernData;
-    my @glyph-names = Font::Encoding.glyph-names( $string );
-    my $char-tab = $Font::Encoding::char;
+    my @glyph-names = self.encoding.glyph-names( $string ).list;
 
     for @glyph-names -> $glyph-name {
         
@@ -347,7 +349,7 @@ method kern( Str $string, Numeric $pointsize? ) {
         }
 
 	$width += $glyph-width;
-        $str ~= Font::Encoding.string( $glyph-name );
+        $str ~= [~] self.encoding.encode-glyph( $glyph-name )>>.chr;
         $prev-glyph = $glyph-name;
     }
 
