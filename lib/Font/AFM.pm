@@ -201,10 +201,6 @@ method core-font($font-name) {
 #    $h = Font::AFM.new("Helvetica");
 #
 
-use Font::Encoding::PDF;
-
-has $.encoding;
-
 multi submethod BUILD( Str :$name! is copy) {
 
    my $metrics = {};
@@ -283,35 +279,59 @@ multi submethod BUILD( Str :$name! is copy) {
 
 multi submethod BUILD( Hash :$metrics! ) {
     self{.key} = .value for $metrics.pairs;
-    $!encoding = Font::Encoding::PDF.new;
 }
 
 multi method new(Str $name)  { self.bless( :$name ) }
 multi method new(Hash $metrics) { self.bless( :$metrics ) }
 
+BEGIN our @ISOLatin1Encoding = <
+ .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
+ .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
+ .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
+ .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef space
+ exclam quotedbl numbersign dollar percent ampersand quoteright
+ parenleft parenright asterisk plus comma minus period slash zero one
+ two three four five six seven eight nine colon semicolon less equal
+ greater question at A B C D E F G H I J K L M N O P Q R S
+ T U V W X Y Z bracketleft backslash bracketright asciicircum
+ underscore quoteleft a b c d e f g h i j k l m n o p q r s
+ t u v w x y z braceleft bar braceright asciitilde .notdef .notdef
+ .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
+ .notdef .notdef .notdef .notdef .notdef .notdef .notdef dotlessi grave
+ acute circumflex tilde macron breve dotaccent dieresis .notdef ring
+ cedilla .notdef hungarumlaut ogonek caron space exclamdown cent
+ sterling currency yen brokenbar section dieresis copyright ordfeminine
+ guillemotleft logicalnot hyphen registered macron degree plusminus
+ twosuperior threesuperior acute mu paragraph periodcentered cedilla
+ onesuperior ordmasculine guillemotright onequarter onehalf threequarters
+ questiondown Agrave Aacute Acircumflex Atilde Adieresis Aring AE
+ Ccedilla Egrave Eacute Ecircumflex Edieresis Igrave Iacute Icircumflex
+ Idieresis Eth Ntilde Ograve Oacute Ocircumflex Otilde Odieresis
+ multiply Oslash Ugrave Uacute Ucircumflex Udieresis Yacute Thorn
+ germandbls agrave aacute acircumflex atilde adieresis aring ae
+ ccedilla egrave eacute ecircumflex edieresis igrave iacute icircumflex
+ idieresis eth ntilde ograve oacute ocircumflex otilde odieresis divide
+ oslash ugrave uacute ucircumflex udieresis yacute thorn ydieresis
+>;
+
 # Returns an 256 element latin1 subset that maps from characters to width
 multi method wx-table($enc = 'latin1') {
-    self<_wx_table>{$enc} //= do {
-        my @wx;
-	for (0..255) {
-	    my $glyph-name = $.encoding.glyph-name(.chr) // '.notdef';
-            $glyph-name = '.notdef'
-                if $glyph-name ~~ /^ 'control'/;
-            @wx.push: self<Wx>{$glyph-name} // self<Wx><.notdef>;
-	}
-	@wx;
-    };
+    self<_wx_table>{$enc} //= [
+        @ISOLatin1Encoding.map( -> $glyph-name {
+            self<Wx>{$glyph-name} // self<Wx><.notdef>;
+	} )
+    ];
 }
 
 method stringwidth( Str $string, Numeric $pointsize?, Bool :$kern ) {
     my $width = 0.0;
     my $prev-glyph;
     my $kern-data = self.KernData if $kern;
-    my @glyph-names = self.encoding.glyph-names( $string ).list;
+    my $wx = self.wx-table('latin-1');
 
-    for @glyph-names -> $glyph-name {
-        my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
-	$width += $glyph-width;
+    for $string.ords {
+	$width += $wx[$_] // 0;
+        my $glyph-name = @ISOLatin1Encoding[$_] // '.notdef';
 
         $width += $kern-data{$prev-glyph}{$glyph-name}
            if $kern && $prev-glyph && ($kern-data{$prev-glyph}{$glyph-name}:exists);
@@ -331,11 +351,10 @@ method kern( Str $string, Numeric $pointsize? ) {
     my $str = '';
     my @kerns;
     my $kern-data = self.KernData;
-    my @glyph-names = self.encoding.glyph-names( $string ).list;
+    my $wx = self.wx-table('latin-1');
 
-    for @glyph-names -> $glyph-name {
-        
-        my $glyph-width = self<Wx>{$glyph-name} // self<Wx><.notdef>;
+    for $string.ords {
+        my $glyph-name = @ISOLatin1Encoding[$_] // '.notdef';
 
         if $prev-glyph && ($kern-data{$prev-glyph}{$glyph-name}:exists) {
             my $kern = $kern-data{$prev-glyph}{$glyph-name};
@@ -348,8 +367,8 @@ method kern( Str $string, Numeric $pointsize? ) {
             $width = 0.0;
         }
 
-	$width += $glyph-width;
-        $str ~= [~] self.encoding.encode-glyph( $glyph-name )>>.chr;
+        $width += $wx[$_] // 0;
+        $str ~= .chr;
         $prev-glyph = $glyph-name;
     }
 
