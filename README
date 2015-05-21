@@ -25,7 +25,7 @@ DESCRIPTION
        Object constructor. Takes the name of the font as argument.
        It will croak if the font can not be found.
 
-    $afm.latin1-wx-table()
+    $afm.wx-table('latin-1')
        Returns a 256 element array, where each element contains the
        width of the corresponding character in the iso-8859-1
        character set.
