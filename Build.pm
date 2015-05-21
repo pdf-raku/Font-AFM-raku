@@ -53,14 +53,15 @@ class Build is Panda::Builder {
 
                 use Font::AFM;
 
-                class $class-name
-                    is Font::AFM;
-
                 --CODE-GEN--
 
-                say "BEGIN our \$metrics = {$metrics.perl}";
+                say "class $class-name";
+                say '    is Font::AFM {';
+
+                say "    BEGIN our \$metrics = {$metrics.perl}";
                 say '';
-                say 'method new { self.bless( :$metrics ) }';
+                say '    method new { self.bless( :$metrics ) }';
+                say '}';
             }
         }
     }
