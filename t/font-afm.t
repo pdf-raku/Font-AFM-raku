@@ -7,7 +7,7 @@ require ::('Font::AFM');
 
 my $font;
 
-lives_ok {
+lives-ok {
    $font = ::('Font::AFM').new("Helvetica")
 }, 'Font::AFM.new("Helvetica")' or do {
     diag "Can't find the AFM file for Helvetica";
@@ -18,7 +18,7 @@ lives_ok {
 is $font<Weight>, 'Medium', '$font<Weight> dereference'; 
 is $font.Weight, 'Medium', '$font.Weight accessor'; 
 
-dies_ok {$font.Guff}, 'unknown method - dies';
+dies-ok {$font.Guff}, 'unknown method - dies';
 
 my $sw = $font.stringwidth("Gisle Aas");
 is $sw, 4279, 'Stringwith for Helvetica';
