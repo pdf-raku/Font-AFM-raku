@@ -346,7 +346,7 @@ it under the same terms as Perl itself.
 
     #| kern a string. decompose into an array of: (['string', $width, $kern] , ... )
     proto method encode( Str $, Numeric $? ) {*}
-    multi method encode( Str $string, Numeric $pointsize?, Bool :$kern where $_ ) {
+    multi method encode( Str $string, Numeric $pointsize?, Bool :$kern! where $_ ) {
         my $width = 0.0;
         my $prev-glyph;
         my $str = '';
