@@ -5,7 +5,7 @@
    Kerning now supported
    - $afm.Kern - returns kerning table as a two dimensional hash array
    - $afm.stringwidth("RVX", :kern) - computes stringwith after kerning
-   - $afm.kern("RVX") - new kerning method
+   - $afm.encode("RVX", :kern) - encode and kern characters.
 
 2015-04-30
 
