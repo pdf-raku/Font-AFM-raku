@@ -184,14 +184,15 @@ it under the same terms as Perl itself.
 
     #-------perl 6 resumes here--------------------------------------------
 
-    method class-name($font-name) {
-        [~] "Font::Metrics::", $font-name.subst( /[:i'.afm'$]/, '').lc;
+    method metrics-class($font-name) {
+        my $class-name = [~] "Font::Metrics::", $font-name.lc.subst( /['.afm'$]/, '');
+        require ::($class-name);
+        ::($class-name);
     }
 
     method core-font($font-name) {
-        my $class-name = self.class-name($font-name);
-        require ::($class-name);
-        ::($class-name).new;
+        my $class = self.metrics-class($font-name);
+        $class.new;
     }
 
     # Creates a new Font::AFM object from an AFM file.  Pass it the name of the
