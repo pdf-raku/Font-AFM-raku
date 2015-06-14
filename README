@@ -36,7 +36,7 @@ DESCRIPTION
                   characters not in the glyph-map are ignored.
 
     $afm.kern($string, $fontsize, :%glyphs)
-       Returns and array of kerning pairs for the string.
+       Returns an array of kerning pairs for the string.
 
        %glyphs is an optional mapping of characters to glyph-names.
 

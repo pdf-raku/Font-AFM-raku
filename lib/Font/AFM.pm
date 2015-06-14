@@ -47,7 +47,7 @@ according to the font size.
 
 =item $afm.kern($string, $fontsize, :%glyphs)
 
-Returns and array of kerning pairs for the string.
+Returns an array of kerning pairs for the string.
 
 =item $afm.FontName
 
@@ -358,9 +358,8 @@ it under the same terms as Perl itself.
         $width;
     }
 
-    #| kern a string. decompose into an array of: (['string', $width, $kern] , ... )
+    #| kern a string. decompose into an array of: ('string1', $kern , ..., 'stringn' )
     method kern( Str $string, Numeric $pointsize?, Hash :$glyphs = %ISOLatin1Encoding) {
-        my $width = 0.0;
         my $prev-glyph;
         my $str = '';
         my @chunks;
@@ -374,25 +373,18 @@ it under the same terms as Perl itself.
             if $prev-glyph && ($kern-data{$prev-glyph}{$glyph-name}:exists) {
                 my $kerning = $kern-data{$prev-glyph}{$glyph-name};
                 if ($pointsize) {
-                    $width *= $pointsize / 1000;
                     $kerning *= $pointsize / 1000;
                 }
-                @chunks.push: [ $str, $width, $kerning ];
+                @chunks.push: ( $str, $kerning );
                 $str = '';
-                $width = 0.0;
             }
 
-            $width += $glyph-width;
             $str ~= $_;
             $prev-glyph = $glyph-name;
         }
 
-        if $str.chars {
-            if ($pointsize) {
-                $width *= $pointsize / 1000;
-            }
-            @chunks.push: [ $str, $width, 0]
-        }
+        @chunks.push: $str
+            if $str.chars;
 
         @chunks;
     }
