@@ -189,8 +189,9 @@ it under the same terms as Perl itself.
     }
 
     method metrics-class($font-name) {
-        require ::($.class-name);
-        ::($.class-name);
+        my $class-name = $.class-name($font-name);
+        require ::($class-name);
+        ::($class-name);
     }
 
     method core-font($font-name) {
