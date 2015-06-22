@@ -20,7 +20,10 @@
         "Font::Metrics::times-roman" : "Font/Metrics/times-roman.pm",
         "Font::Metrics::times-bold" : "Font/Metrics/times-bold.pm",
         "Font::Metrics::times-italic" : "Font/Metrics/times-italic.pm",
-        "Font::Metrics::times-bolditalic" : "Font/Metrics/times-bolditalic.pm"
+        "Font::Metrics::times-bolditalic" : "Font/Metrics/times-bolditalic.pm",
+
+        "Font::Metrics::symbol" : "Font/Metrics/symbol.pm",
+        "Font::Metrics::zapfdingbats" : "Font/Metrics/zapfdingbats.pm"
      }
 }
 

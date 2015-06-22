@@ -13,6 +13,7 @@
   - removed method .wx-table('latin-1')
   - renamed method .encode => .kern
   - added :%chars option to .stringwidth, .kern
+  - compute metrics for Symbol, ZapfDingbats
 
 2015-04-30
 
