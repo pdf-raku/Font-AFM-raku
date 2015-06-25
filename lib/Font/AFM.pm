@@ -393,6 +393,10 @@ it under the same terms as Perl itself.
         @chunks;
     }
 
+    method FontBBox {
+        self<FontBBox>.comb(/< + - >?\d+/).map({ .Int });
+    }
+
     method !is-prop($prop-name) {
         BEGIN constant KnownProps = set < FontName FullName FamilyName Weight
         ItalicAngle IsFixedPitch FontBBox UnderlinePosition
