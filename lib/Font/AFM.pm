@@ -384,10 +384,10 @@ it under the same terms as Perl itself.
 
             if $prev-glyph && ($kern-data{$prev-glyph}{$glyph-name}:exists) {
                 my Numeric $kerning = $kern-data{$prev-glyph}{$glyph-name};
-                if ($pointsize) {
-                    $kerning *= $pointsize / 1000;
-                }
-                @chunks.push: ( $str, $kerning );
+                $kerning *= $pointsize / 1000
+                    if $pointsize;
+                @chunks.push: $str;
+                @chunks.push: $kerning;
                 $str = '';
             }
 
