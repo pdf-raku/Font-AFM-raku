@@ -66,10 +66,7 @@ class Build {
     }
 
     method build($where) {
-
-        indir $where, {
-            self!"build-metrics"();
-        }
+        self!build-metrics();
     }
 }
 
