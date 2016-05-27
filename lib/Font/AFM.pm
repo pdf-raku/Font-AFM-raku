@@ -16,7 +16,6 @@ Font::AFM - Interface to Adobe Font Metrics files
  my $copyright = $h.Notice;
  my $w = $h.Wx<aring>;
  $w = $h.stringwidth("Gisle", 10);
- $h.dump;  # for debugging
 
 =head1 DESCRIPTION
 
@@ -222,18 +221,14 @@ it under the same terms as Perl itself.
            $file = $name ~ '.afm';
            unless $*SPEC.is-absolute($file) {
                # not absolute, search the metrics path for the file
-               my @metrics_path = %*ENV<METRICS>:exists
+               my @metrics-path = %*ENV<METRICS>:exists
                  ?? %*ENV<METRICS>.split(/\:/)>>.subst(rx{'/'$},'')
                  !! < /usr/lib/afm  /usr/local/lib/afm
                       /usr/openwin/lib/fonts/afm  . >;
-
-               for @metrics_path {
-                   my $candidate = $*SPEC.catfile( $_, $file);
-                   if $candidate.IO ~~ :f {
-                       $file = $candidate;
-                       last;
-                   }
-               }
+               $file = $_
+                   with @metrics-path\
+                   .map({ $*SPEC.catfile( $_, $file) })\
+                   .first: { .IO ~~ :f };
            }
        }
 
