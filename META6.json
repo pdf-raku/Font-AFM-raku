@@ -5,7 +5,7 @@
     "auth"        : "github:p6-pdf",
     "description" : "Interface to Adobe Font Metrics files",
     "depends"     : [ ],
-    "source-url"  : "git://github.com/p6-pdf/perl6-Font-AFM.git",
+    "source-url"  : "git://github.com/p6-pdf/Font-AFM-p6.git",
     "provides"    : {
         "Font::AFM" : "lib/Font/AFM.pm",
 
