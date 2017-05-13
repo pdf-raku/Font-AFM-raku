@@ -23,26 +23,26 @@ class Build {
             Symbol       ZapfDingbats
         >;
 
-        for @CoreFonts -> $font-name {
-            my Str $class-name = Font::AFM.class-name( $font-name );
+        for @CoreFonts -> $name {
+            my Str $class-name = Font::AFM.class-name( $name );
             my Str @parts = $class-name.split('::');
             my Str $mod-name = @parts.pop;
             my $lib-dir = $*SPEC.catdir('lib', @parts);
             mkdir( $lib-dir, 0o755)
                 unless $lib-dir.IO ~~ :e;
 
-            my $afm = Font::AFM.new: $font-name;
+            my $afm = Font::AFM.new: :$name;
 
-            say "Building $font-name => $class-name";
+            say "Building $name => $class-name";
             {
                 my $gen-path = $*SPEC.catfile($lib-dir, "$mod-name.pm");
                 my $*OUT = open( $gen-path, :w);
 
-                my Hash $metrics = %( $afm ).item;
+                my Hash $metrics = $afm.metrics;
 
                 print q:s:c:to"--CODE-GEN--";
                 use v6;
-                # Font metrics for $font-name
+                # Font metrics for $name
                 #
                 # DO NOT EDIT!!!
                 #
@@ -57,9 +57,7 @@ class Build {
                 say "class $class-name";
                 say '    is Font::AFM {';
 
-                say "    BEGIN our \$metrics = {$metrics.perl}";
-                say '';
-                say '    method new { self.bless( :$metrics ) }';
+                say '    method metrics { ' ~ $metrics.perl ~ ' }';
                 say '}';
             }
         }
