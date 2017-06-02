@@ -209,7 +209,7 @@ it under the same terms as Perl itself.
         $class.new;
     }
 
-    multi method TWEAK( Str :$name) {
+    submethod TWEAK( Str :$name) {
         self!load-afm-metrics($_) with $name;
     }
 
@@ -267,7 +267,7 @@ it under the same terms as Perl itself.
        }
 
        die "Can't find the AFM file for $name ($file)"
-         unless $file.IO ~~ :e;
+           unless $file.IO ~~ :e;
 
        my $afm = $file.IO.open( :r );
 
@@ -454,7 +454,7 @@ it under the same terms as Perl itself.
     }
 
     multi method FALLBACK(Str $prop-name where self!"is-prop"($prop-name)) {
-        self.WHAT.^add_method($prop-name, { $.metrics{$prop-name} } );
+        self.WHAT.^add_method($prop-name, method { $.metrics{$prop-name} } );
         self."$prop-name"();
     }
 
