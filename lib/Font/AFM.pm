@@ -27,7 +27,37 @@ All measurements in AFM files are given in terms of units equal to
 sizes in a document, these amounts should be multiplied by (scale
 factor of font)/1000.
 
-The following methods are available:
+=head3 Font Metrics Classes
+
+This module includes built-in classes for the 14 PDF Core Fonts:
+
+    use Font::Metrics::helvetica;
+    my $bbox = Font::Metrics::helvetica.FontBBox;
+
+The list of available fonts is:
+=over 3
+
+=item Courier Fonts
+    Font::Metrics::courier
+    Font::Metrics::courier-bold
+    Font::Metrics::courier-oblique
+    Font::Metrics::courier-boldoblique
+=item Helvetica Fonts
+    Font::Metrics::helvetica
+    Font::Metrics::helvetica-bold
+    Font::Metrics::helvetica-oblique
+    Font::Metrics::helvetica-boldoblique
+=item Times-Roman Fonts
+    Font::Metrics::times-roman
+    Font::Metrics::times-bold
+    Font::Metrics::times-italic
+    Font::Metrics::times-bolditalic
+=item Symbolic Fonts
+    Font::Metrics::symbol
+    Font::Metrics::zapfdingbats
+=back
+
+=head2 Methods
 
 =over 3
 
