@@ -483,6 +483,17 @@ it under the same terms as Perl itself.
         %Props{$prop-name}:exists;
     }
 
+    method perl(:$name = self.^name) {
+        qq:to<--END-->
+        use Font::AFM;
+
+        class $name
+            is Font::AFM \{
+            method metrics \{ {$.metrics.perl} }
+        \}
+        --END--
+    }
+
     multi method FALLBACK(Str $prop-name where self!"is-prop"($prop-name)) {
         self.WHAT.^add_method($prop-name, method { $.metrics{$prop-name} } );
         self."$prop-name"();
