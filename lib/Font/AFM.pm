@@ -483,7 +483,7 @@ it under the same terms as Perl itself.
         %Props{$prop-name}:exists;
     }
 
-    method perl(:$name = self.^name) {
+    method perl-gen(:$name = self.^name) {
         qq:to<--END-->
         use Font::AFM;
 
