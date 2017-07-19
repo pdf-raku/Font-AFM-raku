@@ -564,10 +564,22 @@ it under the same terms as Perl itself.
         --END--
     }
 
-    multi method FALLBACK(Str $prop-name where self!"is-prop"($prop-name)) {
-        self.WHAT.^add_method($prop-name, method { $.metrics{$prop-name} } );
-        self."$prop-name"();
+    method can(Str \name) {
+        my @meth = callsame;
+        if !@meth && self!is-prop(name) {
+            # vivify property accessor method
+            @meth.push: method { $.metrics{name} };
+            self.^add_method(name,  @meth[0]);
+        }
+        @meth;
     }
 
-    multi method FALLBACK($name) is default { die "unknown method: $name\n" }
+    method dispatch:<.?>(\name, |c) is raw {
+        self.can(name) ?? self."{name}"(|c) !! Nil
+    }
+    method FALLBACK(Str $method, |c) {
+        self.can($method)
+            ?? self."$method"(|c)
+            !! die die X::Method::NotFound.new( :$method, :typename(self.^name) );
+    }
 }
