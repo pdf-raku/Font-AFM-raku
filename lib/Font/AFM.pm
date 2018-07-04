@@ -501,7 +501,7 @@ method kern( Str $string,
     }
 
     @chunks.push: $str
-        if $str.chars;
+        if $str;
 
     $stringwidth *= $pointsize / 1000
         if $pointsize;
@@ -528,23 +528,15 @@ method perl-gen(:$name = self.^name) {
     --END--
 }
 
-method can(Str \name) {
-    my @meth = callsame;
-    if !@meth && self!is-prop(name) {
-        # vivify property accessor method
-        @meth.push: method { $.metrics{name} };
-        self.^add_method(name,  @meth[0]);
-    }
-    @meth;
-}
-
 method dispatch:<.?>(\name, |c) is raw {
-    self.can(name) ?? self."{name}"(|c) !! Nil
+    self.can(name) || (%Props{name}:exists)
+        ?? self."{name}"(|c) 
+        !! Nil
 }
 
 method FALLBACK(Str $method, |c) {
-    self.can($method)
-        ?? self."$method"(|c)
+    %Props{$method}:exists
+        ?? $.metrics{$method}
         !! die die X::Method::NotFound.new( :$method, :typename(self.^name) );
 }
 
