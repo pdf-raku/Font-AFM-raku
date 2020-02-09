@@ -1,4 +1,4 @@
-sub MAIN(Str :$glyphlist = 'glyphlist.txt', Bool :$subset = False) {
+sub MAIN(Str :$glyphlist = 'etc/glyphlist.txt', Bool :$subset = False) {
     my %glyphs;
     my %subset = make-subset()
         if $subset;

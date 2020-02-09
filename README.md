@@ -9,7 +9,7 @@ SYNOPSIS
 ========
 
     use Font::AFM;
-    my $h = Font::AFM.new: :name<Helvetica>;
+    my Font::AFM $h .= new: :name<Helvetica>;
     my $copyright = $h.Notice;
     my $w = $h.Wx<aring>;
     $w = $h.stringwidth("Gisle", 10);
@@ -26,7 +26,7 @@ All measurements in AFM files are given in terms of units equal to 1/1000 of the
 This module includes built-in classes for the 14 PDF Core Fonts:
 
     use Font::Metrics::helvetica;
-    my $bbox = Font::Metrics::helvetica.FontBBox;
+    my Num @bbox[4] = Font::Metrics::helvetica.FontBBox;
 
 The list of available fonts is:
 

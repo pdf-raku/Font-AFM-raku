@@ -5,7 +5,7 @@ use v6;
 # under the "Metrics" directory.
 #
 # Author: Gisle Aas
-# Perl 5 -> 6 Port: David Warring
+# Perl 5 -> Raku Port: David Warring
 
 BEGIN %*ENV<METRICS> //= 'etc/Core14_AFMs';
 
@@ -35,7 +35,7 @@ class Build {
 
             say "Building $name => $class-name";
             {
-                my $gen-path = $*SPEC.catfile($lib-dir, "$mod-name.pm");
+                my $gen-path = $*SPEC.catfile($lib-dir, "$mod-name.rakumod");
                 my $*OUT = open( $gen-path, :w);
 
                 print q:s:c:to"--CODE-GEN--";
@@ -49,7 +49,7 @@ class Build {
                 # {$afm.Notice}
 
                 --CODE-GEN--
-                print $afm.perl-gen: :name($class-name);
+                print $afm.raku-gen: :name($class-name);
             }
         }
     }
@@ -59,7 +59,6 @@ class Build {
     }
 }
 
-# Build.pm can also be run standalone 
 sub MAIN(:$indir = '.', :$metrics-path?, :$glyphs-path ) {
 
     %*ENV<METRICS> = $metrics-path
