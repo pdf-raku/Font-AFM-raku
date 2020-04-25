@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/p6-pdf/Font-AFM-p6.svg?branch=master)](https://travis-ci.org/p6-pdf/Font-AFM-p6)
+[![Build Status](https://travis-ci.org/pdf-raku/Font-AFM-raku.svg?branch=master)](https://travis-ci.org/pdf-raku/Font-AFM-raku)
 
 NAME
 ====
@@ -206,6 +206,6 @@ COPYRIGHT
 
 Copyright 1995-1998 Gisle Aas. All rights reserved.
 
-Ported from Perl 5 to 6 by David Warring Copyright 2015
+Ported from Perl to Raku by David Warring Copyright 2015
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
