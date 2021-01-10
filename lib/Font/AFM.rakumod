@@ -1,26 +1,30 @@
 # This -*- perl6 -*-  module is a simple parser for Adobe Font Metrics files.
 
-unit class Font::AFM;
+unit class Font::AFM:ver<1.23.7>;
 
 =begin pod
 
-=head1 NAME
+=head2 Name
 
 Font::AFM - Interface to Adobe Font Metrics files
 
-=head1 SYNOPSIS
+=head2 Synopsis
 
  use Font::AFM;
- my $h = Font::AFM.new: :name<Helvetica>;
+ my Font::AFM $h .= core-font: 'Helvetica';
  my $copyright = $h.Notice;
  my $w = $h.Wx<aring>;
  $w = $h.stringwidth("Gisle", 10);
 
-=head1 DESCRIPTION
+=head2 Description
 
 This module implements the Font::AFM class. Objects of this class are
 initialised from an AFM (Adobe Font Metrics) file and allow you to obtain
 information about the font and the metrics of the various glyphs in the font.
+
+This module includes built-in metrics classes for the 14 PDF Core Fonts.
+
+Metrics can also be loaded for local AFM files on your system.
 
 All measurements in AFM files are given in terms of units equal to
 1/1000 of the scale factor of the font being used. To compute actual
@@ -29,12 +33,12 @@ factor of font)/1000.
 
 =head3 Font Metrics Classes
 
-This module includes built-in classes for the 14 PDF Core Fonts:
+This module includes built-in classes for the 14 PDF Core Fonts. For example:
 
     use Font::Metrics::helvetica;
     my $bbox = Font::Metrics::helvetica.FontBBox;
 
-The list of available fonts is:
+The list of PDF Core Fonts is:
 
 =item Courier Fonts
 =item2    Font::Metrics::courier
@@ -60,10 +64,22 @@ The list of available fonts is:
 
 =head2 Methods
 
+=end pod
+
+#| Loads a named PDF core font
+method core-font(Str $font-name --> Font::AFM:D) {
+    my $class = self.metrics-class($font-name);
+    $class.new;
+}
+=para Where `$font-name` is one of `Helvetica`, `Helvetica-Bold`, `Helvetica-Oblique`, `Helvetica-Boldoblique`, `Times-Roman`, `Times-Bold`, `Times-Italic`, `Times-BoldItalic`, `Symbol`, or `Zapfdingbats` (case insensitive).
+
+=begin pod
+
 =head3 my $afm = Font::AFM.new: :$name;
 
-Object constructor. Takes the name of the font as argument.
-Croaks if the font can not be found.
+AFM font metrics loader. `:$name` may be the absolute path of a font.
+Otherwise the font is loaded from the directory specified by the
+`METRICS` environment variable (see ENVIRONMENT below). Croaks if the font can not be found.
 
 =head3 $afm.FontName
 
@@ -175,6 +191,12 @@ by numeric kerning distances, and the overall width of the string.
 
        :%glyphs            - an optional mapping of characters to glyph-names.
 
+=head2 SEE ALSO
+
+=item L<Font::FreeType> - To obtain metrics (and more) for many other font formats , including`*.pfa`, `*.pfm`, `*.ttf` and `*.otf` files.
+
+=item L<HarfBuzz> - Also has some ability to obtain metrics for `*.ttf` and `*.otf` fonts.
+
 =end pod
 
 #-------Raku resumes here--------------------------------------------
@@ -195,12 +217,6 @@ method class-name(Str $font-name --> Str) {
 method metrics-class(Str $font-name --> Font::AFM:U) {
     my $class-name = self.class-name($font-name);
     require ::($class-name);
-}
-
-#| creates a delegate object for the named font.
-method core-font(Str $font-name --> Font::AFM:D) {
-    my $class = self.metrics-class($font-name);
-    $class.new;
 }
 
 submethod TWEAK( Str :$name) {
@@ -240,7 +256,7 @@ method !load-afm-metrics(Str $name) {
    my $file;
 
   if ~$*DISTRO ~~ m:i{^VMS} {
-       # Raku porters note: Perl 6 on VMS?
+       # Raku porters note: Raku on VMS?
        $file = [~] 'sys$ps_font_metrics:', $name, '.afm';
    } else {
        $file = $name ~ '.afm';
@@ -569,7 +585,7 @@ Composite character and Ligature data are not parsed.
 
 Copyright 1995-1998 Gisle Aas. All rights reserved.
 
-Ported from Perl 5 to 6 by David Warring Copyright 2015
+Ported from Perl to Raku by David Warring Copyright 2015
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

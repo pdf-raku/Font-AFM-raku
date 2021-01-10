@@ -1,36 +1,38 @@
-[[Raku PDF Project]](https://pdf-raku.github.io)
- / [Font::AFM](https://pdf-raku.github.io/Font-AFM-raku)
-[![Build Status](https://travis-ci.org/pdf-raku/Font-AFM-raku.svg?branch=master)](https://travis-ci.org/pdf-raku/Font-AFM-raku)
+[![Build Status](https://travis-ci.org/p6-pdf/Font-AFM-p6.svg?branch=master)](https://travis-ci.org/p6-pdf/Font-AFM-p6)
 
-NAME
-====
+Name
+----
 
 Font::AFM - Interface to Adobe Font Metrics files
 
-SYNOPSIS
-========
+Synopsis
+--------
 
     use Font::AFM;
-    my Font::AFM $h .= new: :name<Helvetica>;
+    my Font::AFM $h .= core-font: 'Helvetica';
     my $copyright = $h.Notice;
     my $w = $h.Wx<aring>;
     $w = $h.stringwidth("Gisle", 10);
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This module implements the Font::AFM class. Objects of this class are initialised from an AFM (Adobe Font Metrics) file and allow you to obtain information about the font and the metrics of the various glyphs in the font.
+
+This module includes built-in metrics classes for the 14 PDF Core Fonts.
+
+Metrics can also be loaded for local AFM files on your system.
 
 All measurements in AFM files are given in terms of units equal to 1/1000 of the scale factor of the font being used. To compute actual sizes in a document, these amounts should be multiplied by (scale factor of font)/1000.
 
 ### Font Metrics Classes
 
-This module includes built-in classes for the 14 PDF Core Fonts:
+This module includes built-in classes for the 14 PDF Core Fonts. For example:
 
     use Font::Metrics::helvetica;
-    my Num @bbox[4] = Font::Metrics::helvetica.FontBBox;
+    my $bbox = Font::Metrics::helvetica.FontBBox;
 
-The list of available fonts is:
+The list of PDF Core Fonts is:
 
   * Courier Fonts
 
@@ -71,9 +73,21 @@ The list of available fonts is:
 Methods
 -------
 
+### method core-font
+
+```perl6
+method core-font(
+    Str $font-name
+) returns Font::AFM:D
+```
+
+Loads a named PDF core font
+
+Where `$font-name` is one of `Helvetica`, `Helvetica-Bold`, `Helvetica-Oblique`, `Helvetica-Boldoblique`, `Times-Roman`, `Times-Bold`, `Times-Italic`, `Times-BoldItalic`, `Symbol`, or `Zapfdingbats` (case insensitive).
+
 ### my $afm = Font::AFM.new: :$name;
 
-Object constructor. Takes the name of the font as argument. Croaks if the font can not be found.
+AFM font metrics loader. `:$name` may be the absolute path of a font. Otherwise the font is loaded from the directory specified by the `METRICS` environment variable (see ENVIRONMENT below). Croaks if the font can not be found.
 
 ### $afm.FontName
 
@@ -165,25 +179,22 @@ Kern the string. Returns an array of string segments, separated by numeric kerni
 
     :%glyphs            - an optional mapping of characters to glyph-names.
 
+SEE ALSO
+--------
+
+  * [Font::FreeType](Font::FreeType) - To obtain metrics (and more) for many other font formats , including`*.pfa`, `*.pfm`, `*.ttf` and `*.otf` files.
+
+  * [HarfBuzz](HarfBuzz) - Also has some ability to obtain metrics for `*.ttf` and `*.otf` fonts.
+
 ### method metrics-class
 
-```
+```perl6
 method metrics-class(
     Str $font-name
 ) returns Font::AFM:U
 ```
 
 autoloads the appropriate delegate for the named font. A subclass of Font::AFM
-
-### method core-font
-
-```
-method core-font(
-    Str $font-name
-) returns Font::AFM:D
-```
-
-creates a delegate object for the named font.
 
 The AFM specification can be found at:
 
@@ -211,3 +222,4 @@ Copyright 1995-1998 Gisle Aas. All rights reserved.
 Ported from Perl to Raku by David Warring Copyright 2015
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+

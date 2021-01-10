@@ -1,5 +1,5 @@
 {
-  "auth": "github:p6-pdf",
+  "auth": "github:pdf-raku",
   "authors": [
     "David Warring"
   ],
@@ -36,5 +36,5 @@
   ],
   "test-depends": [
   ],
-  "version": "1.24.3"
+  "version": "1.23.7"
 }
