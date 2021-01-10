@@ -1,5 +1,5 @@
 {
-  "auth": "github:pdf-raku",
+  "auth": "cpan:WARRINGD",
   "authors": [
     "David Warring"
   ],
@@ -30,11 +30,11 @@
   },
   "resources": [
   ],
-  "source-url": "git://github.com/p6-pdf/Font-AFM-p6.git",
+  "source-url": "git://github.com/pdf-raku/Font-AFM-raku.git",
   "tags": [
     "font"
   ],
   "test-depends": [
   ],
-  "version": "1.23.7"
+  "version": "1.24.3"
 }

@@ -1,6 +1,6 @@
 # This -*- perl6 -*-  module is a simple parser for Adobe Font Metrics files.
 
-unit class Font::AFM:ver<1.23.7>;
+unit class Font::AFM:ver<1.24.3>;
 
 =begin pod
 
