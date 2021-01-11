@@ -249,7 +249,7 @@ method !coerce(Str $key, Str $val) {
         !! $val
 }
 
-method !load-afm-metrics(Str $name) {
+method !load-afm-metrics(Str $name) is hidden-from-backtrace {
    %!metrics = ();
 
    $name ~~ s/'.afm' $//;

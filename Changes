@@ -1,11 +1,10 @@
 {{$NEXT}}
 
 1.24.3  2021-01-11T10:14:58+13:00
-   - Documentation release. Highlight `core-font` method. Document what
+   - Documentation. Highlight `core-font` method. Document what
      Font::Afm.new: :$name actually does (scans and loads font metrics)..
      Mention Font::FreeType and HarfBuzz as alternative
-Release 1.24.3
-- Rename sources *.pm -> *.rakumod; *.pl -> *.raku
+   - Rename sources *.pm -> *.rakumod; *.pl -> *.raku
 Release 1.24.2
 - Replace ISO Latin subset with a full glyph table of all unicode points
  included in the Core 12 text fonts.
