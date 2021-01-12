@@ -116,7 +116,8 @@ If C<true>, the font is a fixed-pitch
 =head3 $afm.FontBBox
 
 An array of integers giving the lower-left x, lower-left y,
-upper-right x, and upper-right y of the font bounding box. The font
+upper-right x, and upper-right y of the font bounding box in
+relation to its origin. The font
 bounding box is the smallest rectangle enclosing the shape that would
 result if all the characters of the font were placed with their
 origins coincident, and then painted.
@@ -174,7 +175,8 @@ Returns a hash table that maps from glyph names to the width of that glyph.
 
 =head3 $afm.BBox
 
-Returns a hash table that maps from glyph names to bounding box information.
+Returns a hash table that maps from glyph names to bounding box information
+in relation to each glyph's origin.
 The bounding box consist of four numbers: llx, lly, urx, ury.
 
 =head3 $afm.stringwidth($string, $fontsize?, :kern, :%glyphs)
