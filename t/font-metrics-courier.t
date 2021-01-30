@@ -1,6 +1,5 @@
 use Test;
 plan 10;
-%*ENV<METRICS> = 'etc/Core14_AFMs';
 
 require ::('Font::Metrics::courier');
 my $metrics = ::('Font::Metrics::courier');

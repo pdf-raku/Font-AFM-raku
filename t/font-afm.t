@@ -1,18 +1,12 @@
 use Test;
 plan 7;
 
-%*ENV<METRICS> = 'etc/Core14_AFMs';
-
 require ::('Font::AFM');
 
 my $font;
 
 lives-ok {
    $font = ::('Font::AFM').new: :name<Helvetica>
-}, 'Font::AFM.new: :name<Helvetica>' or do {
-    diag "Can't find the AFM file for Helvetica";
-    skip-rest "Can't find required font";
-    exit;
 };
 
 is $font.Weight, 'Medium', '$font.Weight accessor'; 

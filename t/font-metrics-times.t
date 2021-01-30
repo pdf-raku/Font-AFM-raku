@@ -1,6 +1,5 @@
 use Test;
 plan 12;
-%*ENV<METRICS> = 'etc/Core14_AFMs';
 
 require ::('Font::Metrics::times-roman');
 my $metrics = ::('Font::Metrics::times-roman').new;

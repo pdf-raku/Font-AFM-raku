@@ -222,7 +222,15 @@ method metrics-class(Str $font-name --> Font::AFM:U) {
 }
 
 submethod TWEAK( Str :$name) {
-    self!load-afm-metrics($_) with $name;
+    with $name {
+        if .lc ~~ m:i/^['courier'|'courier-bold'|'courier-oblique'|'courier-boldoblique'|'helvetica'|'helvetica-bold'|'helvetica-oblique'|'helvetical-boldoblique'|'times-roman'|'times-bold'|'times-italic'|'times-bolditalic'|'symbol'|'zapfdingbats']'.afm'?$/ {
+            # standard core font
+            %!metrics = self.metrics-class($_).metrics;
+        }
+        else {
+            self!load-afm-metrics($_);
+        }
+    }
 }
 
 # full list of properties

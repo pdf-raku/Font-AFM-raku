@@ -1,10 +1,14 @@
 {{$NEXT}}
+   - Solve #8 by routing to a core font's metrics, if :$name matches a core
+     font, e.g. `Font::AFM.new: :name<Helvetica>` directly uses the metrics
+     from Font::Metrics::helvetica
 
 1.24.3  2021-01-11T10:14:58+13:00
    - Documentation. Highlight `core-font` method. Document what
      Font::Afm.new: :$name actually does (scans and loads font metrics)..
      Mention Font::FreeType and HarfBuzz as alternative
    - Rename sources *.pm -> *.rakumod; *.pl -> *.raku
+
 Release 1.24.2
 - Replace ISO Latin subset with a full glyph table of all unicode points
  included in the Core 12 text fonts.
