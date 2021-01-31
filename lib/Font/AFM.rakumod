@@ -269,15 +269,17 @@ method !load-afm-metrics(Str $name) is hidden-from-backtrace {
        # Raku porters note: Raku on VMS?
        $file = [~] 'sys$ps_font_metrics:', $name, '.afm';
    } else {
-       $file = $name ~ '.afm';
+      $file = $name;
        unless $*SPEC.is-absolute($file) {
+          $file ~= '.afm'
+              unless $file.ends-with('.afm');
            # not absolute, search the metrics path for the file
            my @metrics-path = do with %*ENV<METRICS> {
                .split(/\:/)>>.subst(rx{'/'$},'')
            }
            else {
                < /usr/lib/afm  /usr/local/lib/afm
-                  /usr/openwin/lib/fonts/afm  . >;
+                 /usr/openwin/lib/fonts/afm  . >;
            }
            $file = $_
                with (@metrics-path\
@@ -302,7 +304,7 @@ method !load-afm-metrics(Str $name) is hidden-from-backtrace {
        if /^StartCharMetrics/     ff /^EndCharMetrics/ {
            # only lines that start with "C" or "CH" are parsed
            next unless /^ CH? ' ' /;
-           my Str $name  = ~ m:s/ <|w> N  <('.'?\w+)> ';' /;
+           my Str $name  = ~ m:s/ <|w> N <(<[ \x21..\x7F ]>+)> ';' /;
            my Numeric $wx    = + m:s/ <|w> WX <(\d+)>     ';' /;
            warn "no bbox: $_"
                unless m:s/ <|w> B [ (< + - >?\d+) ]+ ';' /;

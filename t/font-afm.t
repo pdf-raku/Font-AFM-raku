@@ -1,5 +1,5 @@
 use Test;
-plan 7;
+plan 8;
 
 require ::('Font::AFM');
 
@@ -9,6 +9,7 @@ lives-ok {
    $font = ::('Font::AFM').new: :name<Helvetica>
 };
 
+is $font.FontName, 'Helvetica';
 is $font.Weight, 'Medium', '$font.Weight accessor'; 
 
 dies-ok {$font.Guff}, 'unknown method - dies';
