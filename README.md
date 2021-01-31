@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/p6-pdf/Font-AFM-p6.svg?branch=master)](https://travis-ci.org/p6-pdf/Font-AFM-p6)
+[![Actions Status](https://github.com/tbrowder/Font-AFM-raku/workflows/test/badge.svg)](https://github.com/tbrowder/Font-AFM-raku/actions)
 
 Name
 ----
