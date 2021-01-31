@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/tbrowder/Font-AFM-raku/workflows/test/badge.svg)](https://github.com/tbrowder/Font-AFM-raku/actions)
+[![Actions Status](https://github.com/pdf-raku/Font-AFM-raku/workflows/test/badge.svg)](https://github.com/pdf-raku/Font-AFM-raku/actions)
 
 Name
 ----
@@ -115,7 +115,7 @@ If `true`, the font is a fixed-pitch (monospaced) font.
 
 ### $afm.FontBBox
 
-An array of integers giving the lower-left x, lower-left y, upper-right x, and upper-right y of the font bounding box. The font bounding box is the smallest rectangle enclosing the shape that would result if all the characters of the font were placed with their origins coincident, and then painted.
+An array of integers giving the lower-left x, lower-left y, upper-right x, and upper-right y of the font bounding box in relation to its origin. The font bounding box is the smallest rectangle enclosing the shape that would result if all the characters of the font were placed with their origins coincident, and then painted.
 
 ### $afm.KernData
 
@@ -167,7 +167,7 @@ Returns a hash table that maps from glyph names to the width of that glyph.
 
 ### $afm.BBox
 
-Returns a hash table that maps from glyph names to bounding box information. The bounding box consist of four numbers: llx, lly, urx, ury.
+Returns a hash table that maps from glyph names to bounding box information in relation to each glyph's origin. The bounding box consist of four numbers: llx, lly, urx, ury.
 
 ### $afm.stringwidth($string, $fontsize?, :kern, :%glyphs)
 
