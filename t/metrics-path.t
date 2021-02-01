@@ -1,5 +1,5 @@
 use Test;
-plan 5;
+plan 6;
 use Font::AFM;
 
 %*ENV<METRICS> = "lib:t/fonts:etc";
