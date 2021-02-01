@@ -262,30 +262,23 @@ method !coerce(Str $key, Str $val) {
 method !load-afm-metrics(Str $name) is hidden-from-backtrace {
    %!metrics = ();
 
-   $name ~~ s/'.afm' $//;
-   my $file;
+   my $file = $name;
 
-  if ~$*DISTRO ~~ m:i{^VMS} {
-       # Raku porters note: Raku on VMS?
-       $file = [~] 'sys$ps_font_metrics:', $name, '.afm';
-   } else {
-      $file = $name;
-       unless $*SPEC.is-absolute($file) {
-          $file ~= '.afm'
-              unless $file.ends-with('.afm');
-           # not absolute, search the metrics path for the file
-           my @metrics-path = do with %*ENV<METRICS> {
-               .split(/\:/)>>.subst(rx{'/'$},'')
-           }
-           else {
-               < /usr/lib/afm  /usr/local/lib/afm
-                 /usr/openwin/lib/fonts/afm  . >;
-           }
-           $file = $_
-               with (@metrics-path\
-                     .map({ $*SPEC.catfile( $_, $file) })\
-                     .first: { .IO ~~ :f });
+   unless $*SPEC.is-absolute($file) {
+      $file ~= '.afm'
+          unless $file.ends-with('.afm');
+       # not absolute, search the metrics path for the file
+       my @metrics-path = do with %*ENV<METRICS> {
+           .split(/\:/)>>.subst(rx{'/'$},'')
        }
+       else {
+           < /usr/lib/afm  /usr/local/lib/afm
+             /usr/openwin/lib/fonts/afm  . >;
+       }
+       $file = $_
+           with (@metrics-path\
+                 .map({ $*SPEC.catfile( $_, $file) })\
+                 .first: { .IO ~~ :f });
    }
 
    die "Can't find the AFM file for $name ($file)"

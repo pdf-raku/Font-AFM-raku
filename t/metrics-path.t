@@ -1,10 +1,13 @@
 use Test;
-plan 4;
+plan 5;
 use Font::AFM;
 
 %*ENV<METRICS> = "lib:t/fonts:etc";
 
 my Font::AFM $font;
+lives-ok { $font .= new: :name<Ambrosia.afm> }
+is $font.FontName, 'Ambrosia';
+
 lives-ok { $font .= new: :name<Ambrosia> }
 
 is $font.FontName, 'Ambrosia';
