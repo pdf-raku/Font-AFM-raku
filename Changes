@@ -1,7 +1,11 @@
 {{$NEXT}}
-   - Solve #8 by routing to a core font's metrics, if :$name matches a core
-     font, e.g. `Font::AFM.new: :name<Helvetica>` directly uses the metrics
-     from Font::Metrics::helvetica
+
+1.24.4  2021-02-06T06:31:11+13:00
+   - Directly use core font metrics where applicable. For example
+     `Font::AFM.new: :name<Helvetica>` directly uses the metrics
+     from Font::Metrics::helvetica. Solves #8
+   - Tests and minor fixes to font loading via the METRICS
+     environment variable
 
 1.24.3  2021-01-11T10:14:58+13:00
    - Documentation. Highlight `core-font` method. Document what
