@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+1.24.5  2021-12-18T06:19:11+13:00
    - Fixed slow-down in metrics accessor by adding Data constants.
      e.g. Font::Metrics::courier::Data
 
