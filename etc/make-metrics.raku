@@ -9,7 +9,7 @@ use v6;
 
 BEGIN %*ENV<METRICS> //= 'etc/Core14_AFMs';
 
-use lib 'lib';
+use lib '.';
 use Font::AFM;
 
 class Build {

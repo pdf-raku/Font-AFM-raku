@@ -1,4 +1,6 @@
 {{$NEXT}}
+   - Fixed slow-down in metrics accessor by adding Data constants.
+     e.g. Font::Metrics::courier::Data
 
 1.24.4  2021-02-06T06:31:11+13:00
    - Directly use core font metrics where applicable. For example

@@ -171,7 +171,7 @@ Returns a hash table that maps from glyph names to bounding box information in r
 
 ### $afm.stringwidth($string, $fontsize?, :kern, :%glyphs)
 
-Returns the width of the string passed as argument. The string is assumed to contains only characters from `%glyphs` A second argument can be used to scale the width according to the font size.
+Returns the width of the string passed as argument. The string is assumed to contains only characters from `%glyphs`. A second argument can be used to scale the width according to the font size.
 
 ### ($kerned, $width) = $afm.kern($string, $fontsize?, :%glyphs?)
 
