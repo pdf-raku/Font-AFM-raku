@@ -1,6 +1,6 @@
 # This -*- raku -*-  module is a simple parser for Adobe Font Metrics files.
 
-unit class Font::AFM:ver<1.24.5>;
+unit class Font::AFM:ver<1.24.6>;
 
 =begin pod
 
@@ -211,6 +211,8 @@ has %.metrics;
 #    $h = Font::AFM.new: :name<Helvetica>;
 #
 
+my Lock $lock .= new;
+
 method class-name(Str $font-name --> Str) {
     [~] "Font::Metrics::", $font-name.lc.subst( /['.afm'$]/, '');
 }
@@ -218,7 +220,7 @@ method class-name(Str $font-name --> Str) {
 #| autoloads the appropriate delegate for the named font. A subclass of Font::AFM
 method metrics-class(Str $font-name --> Font::AFM:U) {
     my $class-name = self.class-name($font-name);
-    require ::($class-name);
+    $lock.protect: { require ::($class-name); }
 }
 
 submethod TWEAK( Str :$name) {
