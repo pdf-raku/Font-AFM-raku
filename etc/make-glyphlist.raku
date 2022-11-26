@@ -19,7 +19,7 @@ sub MAIN(Str :$glyphlist = 'etc/glyphlist.txt', Bool :$subset = False) {
     # additional ad-hoc mappings
     %glyphs<μ> = 'mu';
 
-    say %glyphs.perl;
+    say %glyphs.raku;
 }
 
 sub make-subset {

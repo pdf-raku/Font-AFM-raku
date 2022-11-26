@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+1.24.7  2022-11-27T10:01:44+13:00
+   - Include .notdef in standard glyph-list
+
 1.24.6  2022-05-07T09:28:53+12:00
    - Lock-protect loading of font classes in metrics-class method
 
