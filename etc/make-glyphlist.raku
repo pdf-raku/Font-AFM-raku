@@ -1,7 +1,7 @@
-sub MAIN(Str :$glyphlist = 'etc/glyphlist.txt', Bool :$subset = False) {
+sub MAIN(Str :$glyphlist = 'etc/glyphlist.txt') {
     my %glyphs;
-    my %subset = make-subset()
-        if $subset;
+    my %subset = make-subset();
+
     for $glyphlist.IO.lines {
         next if /^ '#'/ || /^ $/;
         m:s/^ $<glyph-name>=[<alnum>+] ';' [ $<code-point>=[<xdigit>+] ]+ $/
@@ -10,14 +10,23 @@ sub MAIN(Str :$glyphlist = 'etc/glyphlist.txt', Bool :$subset = False) {
                    next;
         };
         my $glyph-name = ~ $<glyph-name>;
-        unless $subset && !%subset{$glyph-name} {
+        if %subset{$glyph-name} {
             my $char = @<code-point>.map({ :16( .Str ).chr }).join;
+            with %glyphs{$char} {
+                warn "multiple glyph-names for {$char.raku}: $_, $glyph-name"
+                    unless $_ eq $glyph-name;
+            }
             %glyphs{$char} = $glyph-name;
+            %subset{$glyph-name}:delete;
         }
     }
 
     # additional ad-hoc mappings
     %glyphs<μ> = 'mu';
+    %subset<.notdef>:delete;
+    if %subset {
+        warn "unresolved glyph-names: {%subset.keys.sort.join: ', '}";
+    }
 
     say %glyphs.raku;
 }
@@ -28,7 +37,7 @@ sub make-subset {
         Courier      Courier-Bold     Courier-Oblique    Courier-BoldOblique
         Helvetica    Helvetica-Bold   Helvetica-Oblique  Helvetica-BoldOblique
         Times-Roman  Times-Bold       Times-Italic       Times-BoldItalic
-        Symbol       ZapfDingbats
+        Symbol
     >;
 
     my %subset;
