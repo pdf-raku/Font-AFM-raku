@@ -23,6 +23,7 @@ sub MAIN(Str :$glyphlist = 'etc/glyphlist.txt') {
 
     # additional ad-hoc mappings
     %glyphs<μ> = 'mu';
+    %glyphs{0.chr} = '.notdef';
     %subset<.notdef>:delete;
     if %subset {
         warn "unresolved glyph-names: {%subset.keys.sort.join: ', '}";
