@@ -1,4 +1,5 @@
 {{$NEXT}}
+   - Add Ligature method
 
 1.24.7  2022-11-27T10:01:44+13:00
    - Include .notdef in standard glyph-list

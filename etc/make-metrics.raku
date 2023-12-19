@@ -31,7 +31,7 @@ class Build {
             mkdir( $lib-dir, 0o755)
                 unless $lib-dir.IO ~~ :e;
 
-            my $afm = Font::AFM.new: :$name;
+            my $afm = Font::AFM.new: :$name, :build;
 
             say "Building $name => $class-name";
             {

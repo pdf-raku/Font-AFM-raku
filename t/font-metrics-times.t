@@ -1,5 +1,5 @@
 use Test;
-plan 12;
+plan 13;
 
 require ::('Font::Metrics::times-roman');
 my $metrics = ::('Font::Metrics::times-roman').new;
@@ -10,6 +10,7 @@ is-deeply $metrics.FontBBox, [-168, -218, 1000, 898], 'FontBBox data';
 is-deeply $metrics.IsFixedPitch, False;
 is-deeply $metrics.UnderlinePosition, -100;
 is $metrics.KernData<R><V>, -80, 'kern data';
+is  $metrics.Ligature<f><l>, 'fl', 'ligatures';
 nok ($metrics.KernData<V><X>:exists), 'kern data (missing)';
 is $metrics.stringwidth("RVX", :!kern), 2111, 'stringwidth :!kern';
 is $metrics.stringwidth("RVX", :kern), 2111 - 80, 'stringwidth :kern';

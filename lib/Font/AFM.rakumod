@@ -223,9 +223,9 @@ method metrics-class(Str $font-name --> Font::AFM:U) {
     $lock.protect: { require ::($class-name); }
 }
 
-submethod TWEAK( Str :$name) {
+submethod TWEAK( Str :$name, Bool :$build) {
     with $name {
-        if .lc ~~ m:i/^['courier'|'courier-bold'|'courier-oblique'|'courier-boldoblique'|'helvetica'|'helvetica-bold'|'helvetica-oblique'|'helvetical-boldoblique'|'times-roman'|'times-bold'|'times-italic'|'times-bolditalic'|'symbol'|'zapfdingbats']'.afm'?$/ {
+        if !$build && .lc ~~ m:i/^['courier'|'courier-bold'|'courier-oblique'|'courier-boldoblique'|'helvetica'|'helvetica-bold'|'helvetica-oblique'|'helvetica-boldoblique'|'times-roman'|'times-bold'|'times-italic'|'times-bolditalic'|'symbol'|'zapfdingbats']'.afm'?$/ {
             # standard core font
             %!metrics = self.metrics-class($_).metrics;
         }
@@ -262,7 +262,7 @@ method !coerce(Str $key, Str $val) {
 }
 
 method !load-afm-metrics(Str $name) is hidden-from-backtrace {
-   %!metrics = ();
+   %!metrics = ( :BBox{}, :KernData{}, :Ligature{}, :Wx{}, );
 
    my $file = $name;
 
@@ -304,9 +304,14 @@ method !load-afm-metrics(Str $name) is hidden-from-backtrace {
            warn "no bbox: $_"
                unless m:s/ <|w> B [ (< + - >?\d+) ]+ ';' /;
            my Array $bbox = [ @0».Int ];
-           # Should also parse lingature data (format: L successor lignature)
            %!metrics<Wx>{$name} = $wx;
            %!metrics<BBox>{$name} = $bbox;
+           # Ligatures
+           for .comb(rx:s/ L <ident> <ident> ';' /) {
+               if m:s/ L <succ=.ident> <lig=.ident> / {
+                   %!metrics<Ligature>{$name}{$<succ>.Str} = $<lig>.Str;
+               }
+           }
            next;
        }
 
@@ -535,6 +540,7 @@ method kern( Str $string,
 method Wx { $.metrics<Wx> }
 method BBox { $.metrics<BBox> }
 method KernData { $.metrics<KernData> }
+method Ligature { $.metrics<Ligature> }
 
 method !is-prop(Str $prop-name --> Bool) {
     %Props{$prop-name}:exists;
