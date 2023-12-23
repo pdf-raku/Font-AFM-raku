@@ -203,6 +203,8 @@ by numeric kerning distances, and the overall width of the string.
 
 #-------Raku resumes here--------------------------------------------
 
+constant UnitsPerEM is export(:UnitsPerEM) = 1000;
+
 has %.metrics;
 # Creates a new Font::AFM object from an AFM file.  Pass it the name of the
 # font as parameter.
@@ -489,7 +491,7 @@ method stringwidth( Str $string,
         }
     }
     if ($pointsize) {
-        $width *= $pointsize / 1000;
+        $width *= $pointsize / UnitsPerEM;
     }
     $width;
 }
@@ -515,7 +517,7 @@ method kern( Str $string,
             with $prev-glyph && .{$prev-glyph} {
                 with .{$glyph-name} -> $kerning is copy {
                     $stringwidth += $kerning;
-                    $kerning *= $pointsize / 1000
+                    $kerning *= $pointsize / UnitsPerEM
                         if $pointsize;
                     @chunks.push: $str;
                     @chunks.push: $kerning;
@@ -531,7 +533,7 @@ method kern( Str $string,
     @chunks.push: $str
         if $str;
 
-    $stringwidth *= $pointsize / 1000
+    $stringwidth *= $pointsize / UnitsPerEM
         if $pointsize;
 
     @chunks, $stringwidth;
