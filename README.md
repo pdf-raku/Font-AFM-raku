@@ -169,10 +169,6 @@ Returns a hash table that maps from glyph names to the width of that glyph.
 
 Returns a hash table that maps from glyph names to bounding box information in relation to each glyph's origin. The bounding box consist of four numbers: llx, lly, urx, ury.
 
-### $afm.Ligature
-
-Returns a hash of hash tables that maps individual glyph names to ligature names.
-
 ### $afm.stringwidth($string, $fontsize?, :kern, :%glyphs)
 
 Returns the width of the string passed as argument. The string is assumed to contains only characters from `%glyphs` A second argument can be used to scale the width according to the font size.
@@ -212,6 +208,11 @@ ENVIRONMENT
     Contains the path to search for AFM-files. Format is as for the PATH environment variable. The default path built into this library is:
 
         /usr/lib/afm:/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.
+
+BUGS
+====
+
+Composite character and Ligature data are not parsed.
 
 COPYRIGHT
 =========

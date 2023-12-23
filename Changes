@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+1.24.8  2023-12-24T09:10:23+13:00
    - Add Ligature method
    - Define UnitsPerEM exportable constant (1000)
 
