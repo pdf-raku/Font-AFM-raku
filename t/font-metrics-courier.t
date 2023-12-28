@@ -1,5 +1,5 @@
 use Test;
-plan 10;
+plan 11;
 
 require ::('Font::Metrics::courier');
 my $metrics = ::('Font::Metrics::courier');
@@ -14,3 +14,4 @@ is $metrics.stringwidth("RVX", :!kern), 1800, 'stringwidth :!kern';
 is $metrics.stringwidth("RVX", :kern), 1800, 'stringwidth :kern';
 is-deeply $metrics.kern("RVX" ), (["RVX"], 1800), '.kern(:kern)';
 is-deeply $metrics.kern("RVX", 12), (["RVX"], 1800 * 12 / 1000), '.kern(..., $w))';
+is $metrics.ligature-subs("first flood"), "ﬁrst ﬂood";

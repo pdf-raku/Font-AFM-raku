@@ -465,6 +465,14 @@ constant %Glyphs = {" " => "space", "!" => "exclam", "\"" =>
 "bracerighttp", "" => "bracerightmid", "" => "bracerightbt", ""
 => "apple", :ﬁ("fi"), :ﬂ("fl"), :mu("μ"), 0.chr => ".notdef" };
 
+method ligature-subs(Str:D $s is copy) {
+    with $.Ligature {
+        $s .= subst("fi", "ﬁ", :g) if .<f><i> ~~ 'fi';
+        $s .= subst("fl", "ﬂ", :g) if .<f><l> ~~ 'fl';
+    }
+    $s;
+}
+
 # compute the expected string-width at the given point size for this glyph set
 method stringwidth( Str $string,
                     Numeric $pointsize?,
