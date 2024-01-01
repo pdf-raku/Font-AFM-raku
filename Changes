@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+1.24.9  2024-01-02T06:43:09+13:00
+   - Add ligature-subs method
+
 1.24.8  2023-12-24T09:10:23+13:00
    - Add Ligature method
    - Define UnitsPerEM exportable constant (1000)
