@@ -7,8 +7,8 @@ use v6;
 #
 # Copyright (c) 1989, 1990, 1991, 1993, 1997 Adobe Systems Incorporated.  All Rights Reserved.
 
-
 class Font::Metrics::courier-bold {
+
     use Font::AFM;
     also is Font::AFM;
 

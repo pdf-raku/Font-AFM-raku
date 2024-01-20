@@ -7,8 +7,8 @@ use v6;
 #
 # Copyright (c) 1985, 1987, 1989, 1990, 1993, 1997 Adobe Systems Incorporated.  All Rights Reserved.Times is a trademark of Linotype-Hell AG and/or its subsidiaries.
 
-
 class Font::Metrics::times-italic {
+
     use Font::AFM;
     also is Font::AFM;
 

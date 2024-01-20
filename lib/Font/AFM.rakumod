@@ -1,6 +1,6 @@
 # This -*- raku -*-  module is a simple parser for Adobe Font Metrics files.
 
-unit class Font::AFM:ver<1.24.9>;
+unit class Font::AFM:ver<1.24.10>;
 
 =begin pod
 
@@ -580,8 +580,8 @@ method !is-prop(Str $prop-name --> Bool) {
 
 method raku-gen(:$name = self.^name) {
     qq:to<--END-->
-
     class $name \{
+
         use Font::AFM;
         also is Font::AFM;
 

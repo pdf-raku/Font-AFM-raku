@@ -77,7 +77,8 @@ Methods
 
 ```raku
 method core-font(
-    Str $font-name
+    Str $font-name,
+    |c
 ) returns Font::AFM:D
 ```
 

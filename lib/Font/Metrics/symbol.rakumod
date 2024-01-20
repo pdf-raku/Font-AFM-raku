@@ -7,8 +7,8 @@ use v6;
 #
 # Copyright (c) 1985, 1987, 1989, 1990, 1997 Adobe Systems Incorporated. All rights reserved.
 
-
 class Font::Metrics::symbol {
+
     use Font::AFM;
     also is Font::AFM;
 

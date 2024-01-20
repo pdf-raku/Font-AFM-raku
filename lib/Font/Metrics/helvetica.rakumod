@@ -7,8 +7,8 @@ use v6;
 #
 # Copyright (c) 1985, 1987, 1989, 1990, 1997 Adobe Systems Incorporated.  All Rights Reserved.Helvetica is a trademark of Linotype-Hell AG and/or its subsidiaries.
 
-
 class Font::Metrics::helvetica {
+
     use Font::AFM;
     also is Font::AFM;
 

@@ -7,8 +7,8 @@ use v6;
 #
 # Copyright (c) 1985, 1987, 1988, 1989, 1997 Adobe Systems Incorporated. All Rights Reserved.ITC Zapf Dingbats is a registered trademark of International Typeface Corporation.
 
-
 class Font::Metrics::zapfdingbats {
+
     use Font::AFM;
     also is Font::AFM;
 
