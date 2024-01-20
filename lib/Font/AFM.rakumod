@@ -191,12 +191,12 @@ constant %Glyphs = {" " => "space", "!" => "exclam", "\"" =>
 => "apple", :ﬁ("fi"), :ﬂ("fl"), :mu("μ"), 0.chr => ".notdef" };
 
 has Hash:D $.glyphs = %Glyphs;
-multi method glyphs(::?CLASS:D:) { $!glyphs }
+multi method glyphs(::?CLASS:D:) is rw { $!glyphs }
 multi method glyphs(::?CLASS:U:) { %Glyphs }
 
 #| Loads a named PDF core font
 method core-font(Str $font-name, |c --> Font::AFM:D) {
-    my $class = self.metrics-class($font-name);
+    my ::?CLASS:U $class = self.metrics-class($font-name);
     $class.new: |c;
 }
 =para Where `$font-name` is one of `Helvetica`, `Helvetica-Bold`, `Helvetica-Oblique`, `Helvetica-Boldoblique`, `Times-Roman`, `Times-Bold`, `Times-Italic`, `Times-BoldItalic`, `Symbol`, or `Zapfdingbats` (case insensitive).
@@ -485,8 +485,12 @@ method to-ligature(Str:D $s is copy) {
 
 method from-ligature(Str:D $s is copy) {
     with $.Ligature {
-        $s .= subst("ﬁ", "fi", :g) if .<f><i> ~~ 'fi';
-        $s .= subst("ﬂ", "fl", :g) if .<f><l> ~~ 'fl';
+        with .<f> {
+            $s .= subst("ﬁ", "fi", :g) if .<i> ~~ 'fi';
+            $s .= subst("ﬂ", "fl", :g) if .<l> ~~ 'fl';
+            $s .= subst("ﬀ", "fl", :g) if .<f> ~~ 'ff';
+        }
+
     }
     $s;
 }
@@ -576,12 +580,13 @@ method !is-prop(Str $prop-name --> Bool) {
 
 method raku-gen(:$name = self.^name) {
     qq:to<--END-->
-    use Font::AFM;
 
-    class $name
-        is Font::AFM \{
+    class $name \{
+        use Font::AFM;
+        also is Font::AFM;
+
         constant Data = {$.metrics.raku};
-        method metrics \{ Data }
+        method metrics \{ Data \}
     \}
     --END--
 }
