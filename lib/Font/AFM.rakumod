@@ -599,8 +599,8 @@ method dispatch:<.?>(\name, |c) is raw {
 
 method FALLBACK(Str $method, |c) {
     %Props{$method}:exists
-        ?? $.metrics{$method}
-        !! die die X::Method::NotFound.new( :$method, :typename(self.^name) );
+        ?? $.metrics{$method} // %Props{$method}
+        !! die X::Method::NotFound.new( :$method, :typename(self.^name) );
 }
 
 =begin pod
